@@ -41,6 +41,18 @@ ${msg ? `<span class="err" role="alert">${msg}</span>` : ""}
   return new Response(html, { status, headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store" } });
 }
 
+
+function seguranca(res) {
+  const out = new Response(res.body, res);
+  out.headers.set("Cache-Control", "private, no-store");
+  out.headers.set("X-Robots-Tag", "noindex, nofollow");
+  out.headers.set("X-Frame-Options", "DENY");
+  out.headers.set("X-Content-Type-Options", "nosniff");
+  out.headers.set("Referrer-Policy", "no-referrer");
+  out.headers.set("Strict-Transport-Security", "max-age=31536000");
+  return out;
+}
+
 export default {
   async fetch(req, env) {
     if (!env.SENHA) return new Response("Acesso nao configurado: falta o segredo SENHA na Cloudflare.", { status: 503 });
@@ -52,7 +64,7 @@ export default {
       const senha = String(form.get("senha") || "");
       if ((await token(senha)) !== esperado) {
         await new Promise((r) => setTimeout(r, 800)); // freia tentativas em sequencia
-        return telaLogin("Senha incorreta. Tente de novo.", 401);
+        return seguranca(telaLogin("Senha incorreta. Tente de novo.", 401));
       }
       return new Response(null, {
         status: 303,
@@ -65,10 +77,7 @@ export default {
     if (url.pathname === "/__sair") {
       return new Response(null, { status: 303, headers: { Location: "/", "Set-Cookie": `${COOKIE}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax` } });
     }
-    if (lerCookie(req, COOKIE) !== esperado) return telaLogin();
-    const res = await env.ASSETS.fetch(req);
-    const out = new Response(res.body, res);
-    out.headers.set("Cache-Control", "private, no-store");
-    return out;
+    if (lerCookie(req, COOKIE) !== esperado) return seguranca(telaLogin());
+    return seguranca(await env.ASSETS.fetch(req));
   },
 };
