@@ -1,0 +1,363 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Fluxo de Clientes Higa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky filters (lojas, meses, dias da semana) · KPI strip · mês a mês (full) · dia a dia (full) · dia da semana | hora × dia · fora do padrão | disponibilidade. Same family as the overtime panel. */
+:root{
+  --bg:#f5f7f6; --panel:#ffffff; --ink:#15181a; --ink-2:#4d5358; --ink-3:#7a8085; --line:#e3e6e3; --line-2:#eef0ee;
+  --accent:#1f5f5b; --accent-soft:#e3efed;
+  --s0:#2a78d6; --s1:#eb6834; --s2:#1a9850; --s3:#8a4fd1;
+  --good:#0a7d0a; --good-bg:#e5f3e5; --bad:#b83232; --bad-bg:#fbe9e9; --warn:#8a5a00; --warn-bg:#fdf1d6;
+  --h0:#f0f5f4; --h1:#cfe5e1; --h2:#9dccc4; --h3:#62aea3; --h4:#2f8a80; --h5:#1f5f5b; --hink:#ffffff;
+  --shadow:0 1px 2px rgba(20,30,30,.06);
+  --f-display:"Archivo",system-ui,sans-serif; --f-body:"Source Sans 3",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121515; --panel:#1b1f1f; --ink:#f2f4f3; --ink-2:#b9bfbd; --ink-3:#8b9290; --line:#2d3333; --line-2:#242929;
+  --accent:#6cc2b9; --accent-soft:#1f3634; --s0:#3987e5; --s1:#e8784a; --s2:#3bb36b; --s3:#a97ee6;
+  --good:#5fcf5f; --good-bg:#183018; --bad:#f08080; --bad-bg:#3a1c1c; --warn:#f0bf55; --warn-bg:#3a2e12;
+  --h0:#1f2626; --h1:#1d3b38; --h2:#22564f; --h3:#2b7a70; --h4:#4aa398; --h5:#8fd3c9; --hink:#0e1a19; --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121515; --panel:#1b1f1f; --ink:#f2f4f3; --ink-2:#b9bfbd; --ink-3:#8b9290; --line:#2d3333; --line-2:#242929;
+  --accent:#6cc2b9; --accent-soft:#1f3634; --s0:#3987e5; --s1:#e8784a; --s2:#3bb36b; --s3:#a97ee6;
+  --good:#5fcf5f; --good-bg:#183018; --bad:#f08080; --bad-bg:#3a1c1c; --warn:#f0bf55; --warn-bg:#3a2e12;
+  --h0:#1f2626; --h1:#1d3b38; --h2:#22564f; --h3:#2b7a70; --h4:#4aa398; --h5:#8fd3c9; --hink:#0e1a19; --shadow:none; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+h1,h2{font-family:var(--f-display);margin:0;text-wrap:balance}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1320px;margin:0 auto;padding-inline:20px;padding-block:20px 48px;display:grid;gap:20px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.top h1{font-size:clamp(22px,3vw,30px);font-weight:700}
+.top .sub{color:var(--ink-2);font-size:14px}
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;border-bottom:1px solid var(--line)}
+.fgroup{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0}
+.flabel{font-size:12px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-family:var(--f-mono)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink-2);border-radius:99px;padding:5px 12px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--panel)}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+select{padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+.clear{border:1px solid var(--line);background:transparent;border-radius:7px;padding:7px 12px;cursor:pointer;color:var(--ink-2)}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.kpi{background:var(--panel);padding:16px 18px;display:grid;gap:4px;align-content:start}
+.kpi .lab{font-size:13px;color:var(--ink-2);font-weight:500}
+.kpi .val{font-family:var(--f-display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi .foot{font-size:13px;color:var(--ink-3)}
+.delta{display:inline-flex;padding:1px 7px;border-radius:99px;font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.delta.up{color:var(--good);background:var(--good-bg)} .delta.down{color:var(--bad);background:var(--bad-bg)} .delta.flat{color:var(--ink-2);background:var(--line-2)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0;box-shadow:var(--shadow)}
+.panel h2{font-size:17px;font-weight:600}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.note{font-size:13px;color:var(--ink-3)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+.cbox{width:100%;position:relative}
+svg{display:block;max-width:100%}
+svg text{fill:var(--ink-2);font-family:var(--f-body);font-size:12px}
+svg .grid{stroke:var(--line-2)} svg .ax{stroke:var(--line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.tscroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{font-weight:600;color:var(--ink-2);font-size:12px;text-transform:uppercase;letter-spacing:.05em;text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--f-mono)}
+th.l,td.l{text-align:left}
+td{padding:6px 8px;border-bottom:1px solid var(--line-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td.hm{text-align:center;font-size:12.5px;min-width:44px;padding:5px 4px;border:2px solid var(--panel)}
+.tag{white-space:nowrap;display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:99px;font-weight:600;background:var(--line-2);color:var(--ink-2)}
+.tag.hi{background:var(--bad-bg);color:var(--bad)} .tag.md{background:var(--warn-bg);color:var(--warn)} .tag.up{background:var(--good-bg);color:var(--good)}
+.bar{display:inline-block;height:8px;border-radius:0 4px 4px 0;vertical-align:middle;margin-right:6px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:transparent;padding:6px 11px;cursor:pointer;color:var(--ink-2);font-weight:500}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--panel)}
+#tip{position:fixed;pointer-events:none;z-index:20;background:var(--ink);color:var(--bg);padding:7px 10px;border-radius:6px;font-size:13px;line-height:1.35;max-width:280px}
+.insights{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.insights li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;font-size:14px;align-items:start}
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin-bottom:14px}
+.exc{background:var(--accent-soft);border-radius:8px;padding:12px 16px;font-size:14.5px;line-height:1.5;color:var(--ink);display:grid;gap:4px;align-content:start}
+.exc.now{background:var(--panel);border:1px solid var(--line)}
+.exk{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+
+footer{font-size:12.5px;color:var(--ink-3);display:grid;gap:4px}
+@media (max-width:1000px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.wrap{padding-inline:16px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi{padding:12px}.kpi .val{font-size:20px}.filters{position:static}}
+
+.themeseg{float:right;margin-left:12px}
+.themeseg button{padding:5px 10px;font-size:13px}
+#hbar{position:fixed;bottom:env(safe-area-inset-bottom,0px);height:16px;overflow-x:auto;overflow-y:hidden;z-index:15;background:var(--panel);border:1px solid var(--line);border-radius:6px 6px 0 0;box-shadow:0 -2px 6px rgba(0,0,0,.08)}
+#hbar>div{height:1px}
+@media (pointer:coarse){#hbar{display:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="seg themeseg" role="group" aria-label="Tema de cores"><button type="button" data-t="auto" aria-pressed="true">Automático</button><button type="button" data-t="light" aria-pressed="false">Claro</button><button type="button" data-t="dark" aria-pressed="false">Escuro</button></div>
+    <div class="eyebrow">Higa · AlterVision</div>
+    <h1>Fluxo de clientes nas lojas</h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filtros">
+    <div class="fgroup"><span class="flabel" id="lLoj">Lojas</span><div class="chips" id="fLoj" role="group" aria-labelledby="lLoj"></div></div>
+    <div class="fgroup"><label class="flabel" for="fM0">De</label><select id="fM0"></select><label class="flabel" for="fM1">até</label><select id="fM1"></select></div>
+    <div class="fgroup"><span class="flabel" id="lDow">Dias</span><div class="chips" id="fDow" role="group" aria-labelledby="lDow"></div></div>
+    <button class="clear" id="clr" type="button">Limpar filtros</button>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="Indicadores"></section>
+
+  <section class="panel">
+    <div class="ph"><h2>Pontos de atenção</h2><span class="note">gerados a partir dos filtros atuais</span></div>
+    <ul class="insights" id="ins"></ul>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><h2>Média de visitantes por dia, mês a mês</h2>
+      <div class="fgroup"><span class="flabel">Mostrar</span><div class="seg" id="mMode"><button type="button" data-m="avg" aria-pressed="true">Média por dia</button><button type="button" data-m="tot" aria-pressed="false">Total do mês</button></div></div></div>
+    <div class="ex"><div class="exc"><div class="exk">O que é</div><div>Quantas pessoas, em média, entraram em cada loja por dia, mês a mês, segundo as câmeras do AlterVision. É o termômetro do movimento: mostra se a loja está atraindo mais ou menos clientes ao longo do ano.</div></div><div class="exc now"><div class="exk">Como usar</div><div>Linha subindo = loja ganhando movimento. Uma queda brusca num só mês, com ponto vazado, quase sempre é falha de câmera, não perda de clientes (caso da SCA em julho).</div></div></div>
+    <div id="cMon" class="cbox"></div>
+    <div class="legend" id="lgMon"></div>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><h2>Dia a dia</h2><span class="note">linha = média móvel de 7 dias · pontos vermelhos = dias fora do padrão</span></div><div class="ex"><div class="exc"><div class="exk">O que é</div><div>Cada ponto é um dia de uma loja; a linha é a média da última semana, que tira o sobe-e-desce entre dias úteis e sábado.</div></div><div class="exc now"><div class="exk">Como usar</div><div>Use para achar datas especiais (Páscoa, feriados, promoções) e dias em que a contagem falhou. Datas com pico se repetem no ano seguinte: dá para planejar escala e estoque com antecedência.</div></div></div>
+    <div id="cDay" class="cbox"></div>
+    <div class="legend" id="lgDay"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div class="ph"><h2>Dia da semana</h2><span class="note">média de visitantes · índice vs. média da loja</span></div><div class="ex"><div class="exc"><div class="exk">O que é</div><div>Movimento médio de cada dia da semana e quanto ele fica acima (verde) ou abaixo (vermelho) da média da própria loja.</div></div><div class="exc now"><div class="exk">Como usar</div><div>A escala de folgas deve acompanhar esse desenho: menos gente nos dias vermelhos, mais nos verdes. Folga concentrada em sábado é sinal de escala desalinhada.</div></div></div>
+      <div class="tscroll"><table id="tDow"></table></div>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2>Participação de cada loja</h2><span class="note">no período e dias filtrados</span></div>
+      <div class="tscroll"><table id="tShare"></table></div>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="ph"><h2>Hora do dia × dia da semana</h2><span class="note" id="hmNote"></span></div><div class="ex"><div class="exc"><div class="exk">O que é</div><div>Quantos clientes entram em cada hora de cada dia da semana; quanto mais escuro, mais cheio. A célula contornada é o pico do dia.</div></div><div class="exc now"><div class="exk">Como usar</div><div>Mostra em que horário a loja precisa de mais caixas e repositores. Se a hora extra acontece longe dos horários escuros, ela não está servindo ao cliente.</div></div></div>
+    <div class="tscroll"><table id="tHm"></table></div>
+    <div class="legend"><span>Menos visitantes</span><span style="display:inline-flex;gap:0"><i style="background:var(--h0);margin:0"></i><i style="background:var(--h1);margin:0"></i><i style="background:var(--h2);margin:0"></i><i style="background:var(--h3);margin:0"></i><i style="background:var(--h4);margin:0"></i><i style="background:var(--h5);margin:0"></i></span><span>Mais visitantes</span><span style="color:var(--ink-3)">· contorno = hora de pico do dia</span></div>
+  </section>
+
+  <section class="panel">
+    <div class="ph"><h2>Perfil por hora de cada loja</h2>
+      <div class="fgroup"><div class="seg" id="pMode"><button type="button" data-m="u" aria-pressed="true">Seg a sex</button><button type="button" data-m="6" aria-pressed="false">Sábado</button><button type="button" data-m="0" aria-pressed="false">Domingo</button></div></div></div>
+    <div id="cHr" class="cbox"></div>
+    <div class="legend" id="lgHr"></div>
+  </section>
+
+  <div class="grid2">
+    <section class="panel">
+      <div style="grid-column:1/-1"><div class="ex"><div class="exc"><div class="exk">O que é</div><div>Dias em que a loja recebeu muito mais ou muito menos clientes que o normal para aquele dia da semana. Feriados e loja fechada aparecem identificados.</div></div><div class="exc now"><div class="exk">Como usar</div><div>Quedas longas sem feriado costumam ser falha de câmera: confira a tabela de disponibilidade ao lado antes de tirar conclusões sobre o movimento.</div></div></div></div>
+      <div class="ph"><h2>Dias fora do padrão</h2><span class="note">comparado à mediana do mesmo dia da semana nas 4 semanas antes e depois</span></div>
+      <div class="tscroll"><table id="tAn"></table></div>
+    </section>
+    <section class="panel">
+      <div class="ph"><h2>Disponibilidade das câmeras</h2><span class="note">% do tempo com contagem ativa, por mês</span></div>
+      <div class="tscroll"><table id="tUp"></table></div>
+      <div class="note" style="margin-top:8px">Abaixo de 95% a contagem do mês pode estar subestimada. Disponibilidade baixa nem sempre derruba o número (uma loja com várias câmeras pode compensar), mas vale conferir junto com a tabela ao lado.</div>
+    </section>
+  </div>
+
+  <footer>
+    <div id="foot"></div>
+    <div>Dias com menos de 100 visitantes (loja fechada, como 01/01 e 01/05) ficam fora das médias.</div>
+  </footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+(function(){const K='higa-tema';let t='auto';try{t=localStorage.getItem(K)||'auto';}catch(e){}
+function ap(v){if(v==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',v);document.querySelectorAll('.themeseg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===v)));}
+ap(t);document.addEventListener('DOMContentLoaded',()=>ap(t));setTimeout(()=>ap(t),0);
+document.addEventListener('click',e=>{const b=e.target.closest('.themeseg button');if(!b)return;t=b.dataset.t;ap(t);try{localStorage.setItem(K,t);}catch(e){}});})();
+(function(){const bar=document.createElement('div');bar.id='hbar';bar.hidden=true;bar.setAttribute('aria-hidden','true');const inner=document.createElement('div');bar.appendChild(inner);document.body.appendChild(bar);
+let cur=null,from=null;
+function pick(){const vh=innerHeight;let best=null;document.querySelectorAll('.tscroll').forEach(el=>{if(!el.offsetParent||el.scrollWidth<=el.clientWidth+2)return;const r=el.getBoundingClientRect();if(r.top<vh-60&&r.bottom>vh)best=el;});
+ cur=best;if(!cur){bar.hidden=true;return;}const r=cur.getBoundingClientRect();bar.hidden=false;bar.style.left=r.left+'px';bar.style.width=r.width+'px';inner.style.width=cur.scrollWidth+'px';if(from!=='bar')bar.scrollLeft=cur.scrollLeft;}
+bar.addEventListener('scroll',()=>{if(!cur||from==='tab')return;from='bar';cur.scrollLeft=bar.scrollLeft;requestAnimationFrame(()=>{from=null;});});
+document.addEventListener('scroll',e=>{const el=e.target;if(el===cur&&from!=='bar'){from='tab';bar.scrollLeft=el.scrollLeft;requestAnimationFrame(()=>{from=null;});}},true);
+let q=0;const sch=()=>{if(q)return;q=requestAnimationFrame(()=>{q=0;pick();});};
+addEventListener('scroll',sch,{passive:true});addEventListener('resize',sch);
+new MutationObserver(sch).observe(document.body,{childList:true,subtree:true});sch();})();
+
+const DATA={"stores":[{"k":"Campinas","nome":"Campinas","fil":"Matriz","id":411},{"k":"SBO","nome":"SBO","fil":"Loja 04","id":694},{"k":"SCA","nome":"SCA","fil":"Loja 06","id":880},{"k":"Bela Aliança","nome":"Bela Aliança","fil":"Loja 07","id":1805}],"daily":{"Campinas":{"2026-01-01":1,"2026-01-02":4560,"2026-01-03":4829,"2026-01-04":2872,"2026-01-05":4404,"2026-01-06":4244,"2026-01-07":4478,"2026-01-08":4801,"2026-01-09":5083,"2026-01-10":5560,"2026-01-11":3241,"2026-01-12":4130,"2026-01-13":4104,"2026-01-14":3909,"2026-01-15":4042,"2026-01-16":4270,"2026-01-17":5067,"2026-01-18":3161,"2026-01-19":3807,"2026-01-20":4276,"2026-01-21":3954,"2026-01-22":4118,"2026-01-23":4517,"2026-01-24":5233,"2026-01-25":3202,"2026-01-26":3887,"2026-01-27":3974,"2026-01-28":3845,"2026-01-29":4368,"2026-01-30":5091,"2026-01-31":5503,"2026-02-01":3969,"2026-02-02":4657,"2026-02-03":4009,"2026-02-04":4040,"2026-02-05":4399,"2026-02-06":5081,"2026-02-07":5517,"2026-02-08":3896,"2026-02-09":3798,"2026-02-10":4049,"2026-02-11":4100,"2026-02-12":4169,"2026-02-13":4669,"2026-02-14":4736,"2026-02-15":3131,"2026-02-16":4407,"2026-02-17":3446,"2026-02-18":3734,"2026-02-19":4077,"2026-02-20":4702,"2026-02-21":5108,"2026-02-22":3275,"2026-02-23":3710,"2026-02-24":3861,"2026-02-25":3748,"2026-02-26":3943,"2026-02-27":4868,"2026-02-28":5771,"2026-03-01":3955,"2026-03-02":4600,"2026-03-03":4313,"2026-03-04":4320,"2026-03-05":4520,"2026-03-06":5047,"2026-03-07":5446,"2026-03-08":3972,"2026-03-09":4006,"2026-03-10":4582,"2026-03-11":4143,"2026-03-12":4134,"2026-03-13":4502,"2026-03-14":5357,"2026-03-15":3364,"2026-03-16":4079,"2026-03-17":3948,"2026-03-18":4141,"2026-03-19":4167,"2026-03-20":4640,"2026-03-21":5359,"2026-03-22":3543,"2026-03-23":4165,"2026-03-24":3818,"2026-03-25":4351,"2026-03-26":4303,"2026-03-27":4817,"2026-03-28":5503,"2026-03-29":3505,"2026-03-30":4674,"2026-03-31":5501,"2026-04-01":5836,"2026-04-02":6161,"2026-04-03":4786,"2026-04-04":6621,"2026-04-05":3606,"2026-04-06":4369,"2026-04-07":4457,"2026-04-08":4594,"2026-04-09":4556,"2026-04-10":4741,"2026-04-11":5780,"2026-04-12":3366,"2026-04-13":3893,"2026-04-14":3798,"2026-04-15":3750,"2026-04-16":3966,"2026-04-17":4343,"2026-04-18":4692,"2026-04-19":3132,"2026-04-20":4546,"2026-04-21":3456,"2026-04-22":3941,"2026-04-23":4310,"2026-04-24":4806,"2026-04-25":5122,"2026-04-26":3340,"2026-04-27":4129,"2026-04-28":4008,"2026-04-29":4318,"2026-04-30":5444,"2026-05-01":5,"2026-05-02":5953,"2026-05-03":3851,"2026-05-04":4600,"2026-05-05":4273,"2026-05-06":4668,"2026-05-07":5285,"2026-05-08":5273,"2026-05-09":5619,"2026-05-10":3539,"2026-05-11":4112,"2026-05-12":4087,"2026-05-13":4042,"2026-05-14":3746,"2026-05-15":4329,"2026-05-16":5164,"2026-05-17":3321,"2026-05-18":3448,"2026-05-19":3939,"2026-05-20":4256,"2026-05-21":4020,"2026-05-22":4416,"2026-05-23":5047,"2026-05-24":3377,"2026-05-25":4060,"2026-05-26":3777,"2026-05-27":3795,"2026-05-28":3948,"2026-05-29":4807,"2026-05-30":5581,"2026-05-31":3902,"2026-06-01":4576,"2026-06-02":4261,"2026-06-03":4349,"2026-06-04":3997,"2026-06-05":5188,"2026-06-06":4837,"2026-06-07":3474,"2026-06-08":4302,"2026-06-09":4096,"2026-06-10":4158,"2026-06-11":4240,"2026-06-12":4849,"2026-06-13":4196,"2026-06-14":3115,"2026-06-15":3661,"2026-06-16":3716,"2026-06-17":3542,"2026-06-18":3978,"2026-06-19":4129,"2026-06-20":4670,"2026-06-21":3257,"2026-06-22":3560,"2026-06-23":3687,"2026-06-24":3109,"2026-06-25":3906,"2026-06-26":4422,"2026-06-27":4929,"2026-06-28":3283,"2026-06-29":2998,"2026-06-30":4364,"2026-07-01":4702,"2026-07-02":4746,"2026-07-03":4939,"2026-07-04":5615,"2026-07-05":3366,"2026-07-06":4263,"2026-07-07":4348,"2026-07-08":4352,"2026-07-09":3839,"2026-07-10":4758,"2026-07-11":4522,"2026-07-12":2724,"2026-07-13":3399,"2026-07-14":3688,"2026-07-15":4011,"2026-07-16":4278,"2026-07-17":4353,"2026-07-18":5008,"2026-07-19":2945,"2026-07-20":4080,"2026-07-21":3974,"2026-07-22":3995,"2026-07-23":3983,"2026-07-24":4329,"2026-07-25":4601,"2026-07-26":3044,"2026-07-27":3723,"2026-07-28":3791,"2026-07-29":3614,"2026-07-30":4134,"2026-07-31":4387,"2026-08-01":5125,"2026-08-02":3578,"2026-08-03":4211,"2026-08-04":4238,"2026-08-05":4301,"2026-08-06":4614,"2026-08-07":4750,"2026-08-08":6125,"2026-08-09":3052,"2026-08-10":4058,"2026-08-11":3880,"2026-08-12":2761,"2026-08-13":4118,"2026-08-14":4376,"2026-08-15":4965,"2026-08-16":2860,"2026-08-17":3860,"2026-08-18":3698,"2026-08-19":3904,"2026-08-20":4392,"2026-08-21":4569,"2026-08-22":4901,"2026-08-23":3156,"2026-08-24":3743,"2026-08-25":3836,"2026-08-26":3953,"2026-08-27":3923,"2026-08-28":4686,"2026-08-29":5176,"2026-08-30":3403,"2026-08-31":4465,"2026-09-01":4466,"2026-09-02":4539,"2026-09-03":4530,"2026-09-04":4760,"2026-09-05":5077,"2026-09-06":3597,"2026-09-07":3506,"2026-09-08":4220,"2026-09-09":3926,"2026-09-10":4158,"2026-09-11":4378,"2026-09-12":4878,"2026-09-13":3474,"2026-09-14":3537,"2026-09-15":3662,"2026-09-16":3764,"2026-09-17":3940,"2026-09-18":4147,"2026-09-19":5008,"2026-09-20":3385,"2026-09-21":3882,"2026-09-22":3927,"2026-09-23":4079,"2026-09-24":4274,"2026-09-25":4640,"2026-09-26":4910,"2026-09-27":2983,"2026-09-28":3879,"2026-09-29":3859,"2026-09-30":4555},"SBO":{"2026-01-02":4465,"2026-01-03":4582,"2026-01-04":2592,"2026-01-05":3582,"2026-01-06":3872,"2026-01-07":3942,"2026-01-08":4064,"2026-01-09":4417,"2026-01-10":5037,"2026-01-11":2924,"2026-01-12":3309,"2026-01-13":3444,"2026-01-14":3264,"2026-01-15":3845,"2026-01-16":4106,"2026-01-17":4905,"2026-01-18":2886,"2026-01-19":2994,"2026-01-20":4008,"2026-01-21":3699,"2026-01-22":3677,"2026-01-23":3995,"2026-01-24":4938,"2026-01-25":2869,"2026-01-26":3154,"2026-01-27":3168,"2026-01-28":3179,"2026-01-29":3434,"2026-01-30":4232,"2026-01-31":5591,"2026-02-01":3796,"2026-02-02":3801,"2026-02-03":3495,"2026-02-04":3597,"2026-02-05":3892,"2026-02-06":4920,"2026-02-07":6024,"2026-02-08":4164,"2026-02-09":3450,"2026-02-10":3698,"2026-02-11":3590,"2026-02-12":3579,"2026-02-13":3976,"2026-02-14":5377,"2026-02-15":2676,"2026-02-16":4074,"2026-02-17":3537,"2026-02-18":3357,"2026-02-19":3430,"2026-02-20":4312,"2026-02-21":5229,"2026-02-22":3128,"2026-02-23":2750,"2026-02-24":3235,"2026-02-25":3268,"2026-02-26":3499,"2026-02-27":4060,"2026-02-28":5526,"2026-03-01":3894,"2026-03-02":3516,"2026-03-03":3561,"2026-03-04":3647,"2026-03-05":3275,"2026-03-06":5083,"2026-03-07":6400,"2026-03-08":3953,"2026-03-09":3551,"2026-03-10":3770,"2026-03-11":3608,"2026-03-12":3545,"2026-03-13":4257,"2026-03-14":5260,"2026-03-15":3137,"2026-03-16":3129,"2026-03-17":3340,"2026-03-18":3570,"2026-03-19":3672,"2026-03-20":4609,"2026-03-21":5441,"2026-03-22":3279,"2026-03-23":3248,"2026-03-24":3314,"2026-03-25":3524,"2026-03-26":3973,"2026-03-27":4378,"2026-03-28":6133,"2026-03-29":3798,"2026-03-30":4018,"2026-03-31":5579,"2026-04-01":6744,"2026-04-02":7334,"2026-04-03":6486,"2026-04-04":5429,"2026-04-05":3720,"2026-04-06":3208,"2026-04-07":3956,"2026-04-08":3665,"2026-04-09":3710,"2026-04-10":4220,"2026-04-11":5270,"2026-04-12":3233,"2026-04-13":2971,"2026-04-14":2999,"2026-04-15":3498,"2026-04-16":3611,"2026-04-17":3328,"2026-04-18":4897,"2026-04-19":2724,"2026-04-20":4246,"2026-04-21":3280,"2026-04-22":3162,"2026-04-23":3399,"2026-04-24":3641,"2026-04-25":4702,"2026-04-26":2898,"2026-04-27":2899,"2026-04-28":3082,"2026-04-29":3593,"2026-04-30":4543,"2026-05-02":6360,"2026-05-03":3460,"2026-05-04":3460,"2026-05-05":3647,"2026-05-06":3666,"2026-05-07":4395,"2026-05-08":5415,"2026-05-09":6543,"2026-05-10":3118,"2026-05-11":3586,"2026-05-12":3224,"2026-05-13":3418,"2026-05-14":3578,"2026-05-15":4392,"2026-05-16":5184,"2026-05-17":3380,"2026-05-18":3202,"2026-05-19":3499,"2026-05-20":3946,"2026-05-21":3796,"2026-05-22":4213,"2026-05-23":5489,"2026-05-24":3274,"2026-05-25":3381,"2026-05-26":3173,"2026-05-27":3069,"2026-05-28":3440,"2026-05-29":4232,"2026-05-30":5355,"2026-05-31":3564,"2026-06-01":4151,"2026-06-02":4088,"2026-06-03":4191,"2026-06-04":4598,"2026-06-05":5468,"2026-06-06":5628,"2026-06-07":3569,"2026-06-08":3559,"2026-06-09":3916,"2026-06-10":3899,"2026-06-11":4337,"2026-06-12":4872,"2026-06-13":4988,"2026-06-14":3631,"2026-06-15":3529,"2026-06-16":3636,"2026-06-17":3621,"2026-06-18":3717,"2026-06-19":4618,"2026-06-20":5579,"2026-06-21":3310,"2026-06-22":3252,"2026-06-23":3492,"2026-06-24":3659,"2026-06-25":4202,"2026-06-26":4244,"2026-06-27":4887,"2026-06-28":3184,"2026-06-29":2865,"2026-06-30":3719,"2026-07-01":4225,"2026-07-02":4172,"2026-07-03":4535,"2026-07-04":6286,"2026-07-05":3869,"2026-07-06":4018,"2026-07-07":4510,"2026-07-08":4228,"2026-07-09":4113,"2026-07-10":4858,"2026-07-11":5005,"2026-07-12":3075,"2026-07-13":3780,"2026-07-14":3393,"2026-07-15":3618,"2026-07-16":3916,"2026-07-17":4112,"2026-07-18":4972,"2026-07-19":2661,"2026-07-20":3828,"2026-07-21":3762,"2026-07-22":3587,"2026-07-23":3938,"2026-07-24":4389,"2026-07-25":5593,"2026-07-26":2960,"2026-07-27":3227,"2026-07-28":3034,"2026-07-29":3284,"2026-07-30":3846,"2026-07-31":4121,"2026-08-01":5669,"2026-08-02":3529,"2026-08-03":3798,"2026-08-04":3704,"2026-08-05":3746,"2026-08-06":4011,"2026-08-07":5051,"2026-08-08":4901,"2026-08-09":2956,"2026-08-10":3476,"2026-08-11":3499,"2026-08-12":3373,"2026-08-13":3591,"2026-08-14":3989,"2026-08-15":5178,"2026-08-16":3087,"2026-08-17":3073,"2026-08-18":2990,"2026-08-19":3153,"2026-08-20":3903,"2026-08-21":4190,"2026-08-22":5048,"2026-08-23":3046,"2026-08-24":3242,"2026-08-25":3599,"2026-08-26":3529,"2026-08-27":3458,"2026-08-28":4155,"2026-08-29":5396,"2026-08-30":3242,"2026-08-31":3736,"2026-09-01":4338,"2026-09-02":4109,"2026-09-03":4296,"2026-09-04":4886,"2026-09-05":6837,"2026-09-06":4266,"2026-09-07":4447,"2026-09-08":4068,"2026-09-09":3846,"2026-09-10":3935,"2026-09-11":4123,"2026-09-12":5317,"2026-09-13":3801,"2026-09-14":3210,"2026-09-15":3884,"2026-09-16":3420,"2026-09-17":3603,"2026-09-18":4479,"2026-09-19":5658,"2026-09-20":3630,"2026-09-21":3463,"2026-09-22":3728,"2026-09-23":3768,"2026-09-24":3749,"2026-09-25":4288,"2026-09-26":4896,"2026-09-27":2933,"2026-09-28":3143,"2026-09-29":3148,"2026-09-30":3719},"SCA":{"2026-01-02":4777,"2026-01-03":5128,"2026-01-04":3265,"2026-01-05":4601,"2026-01-06":4381,"2026-01-07":4596,"2026-01-08":4623,"2026-01-09":5334,"2026-01-10":6394,"2026-01-11":3757,"2026-01-12":3799,"2026-01-13":4256,"2026-01-14":4054,"2026-01-15":4148,"2026-01-16":4508,"2026-01-17":5509,"2026-01-18":3413,"2026-01-19":3697,"2026-01-20":4540,"2026-01-21":4350,"2026-01-22":4349,"2026-01-23":5034,"2026-01-24":6396,"2026-01-25":3917,"2026-01-26":4083,"2026-01-27":4458,"2026-01-28":4263,"2026-01-29":4595,"2026-01-30":5397,"2026-01-31":7290,"2026-02-01":4792,"2026-02-02":4763,"2026-02-03":4352,"2026-02-04":4218,"2026-02-05":4696,"2026-02-06":6062,"2026-02-07":7863,"2026-02-08":4909,"2026-02-09":3894,"2026-02-10":4390,"2026-02-11":4619,"2026-02-12":4799,"2026-02-13":5555,"2026-02-14":6831,"2026-02-15":3899,"2026-02-16":5065,"2026-02-17":4146,"2026-02-18":4288,"2026-02-19":4609,"2026-02-20":5163,"2026-02-21":6430,"2026-02-22":4178,"2026-02-23":3826,"2026-02-24":3939,"2026-02-25":4192,"2026-02-26":4153,"2026-02-27":5124,"2026-02-28":7781,"2026-03-01":5244,"2026-03-02":4635,"2026-03-03":4635,"2026-03-04":4490,"2026-03-05":4801,"2026-03-06":5764,"2026-03-07":6674,"2026-03-08":4839,"2026-03-09":4338,"2026-03-10":4363,"2026-03-11":4403,"2026-03-12":4288,"2026-03-13":5228,"2026-03-14":7578,"2026-03-15":4320,"2026-03-16":4289,"2026-03-17":4526,"2026-03-18":4485,"2026-03-19":4511,"2026-03-20":5728,"2026-03-21":7327,"2026-03-22":4558,"2026-03-23":4653,"2026-03-24":4520,"2026-03-25":4598,"2026-03-26":4669,"2026-03-27":5492,"2026-03-28":7350,"2026-03-29":4782,"2026-03-30":5070,"2026-03-31":6146,"2026-04-01":7274,"2026-04-02":8373,"2026-04-03":6867,"2026-04-04":9099,"2026-04-05":4450,"2026-04-06":4280,"2026-04-07":4408,"2026-04-08":4306,"2026-04-09":4559,"2026-04-10":5103,"2026-04-11":7187,"2026-04-12":4555,"2026-04-13":4192,"2026-04-14":4217,"2026-04-15":4356,"2026-04-16":4418,"2026-04-17":4942,"2026-04-18":5516,"2026-04-19":4252,"2026-04-20":5565,"2026-04-21":4418,"2026-04-22":4091,"2026-04-23":4288,"2026-04-24":4859,"2026-04-25":6578,"2026-04-26":4123,"2026-04-27":3901,"2026-04-28":4359,"2026-04-29":4169,"2026-04-30":5933,"2026-05-01":1,"2026-05-02":8030,"2026-05-03":5021,"2026-05-04":4677,"2026-05-05":4732,"2026-05-06":4801,"2026-05-07":4689,"2026-05-08":6225,"2026-05-09":6277,"2026-05-10":2425,"2026-05-11":4625,"2026-05-12":4766,"2026-05-13":4540,"2026-05-14":4623,"2026-05-15":5053,"2026-05-16":7356,"2026-05-17":4059,"2026-05-18":4398,"2026-05-19":4421,"2026-05-20":4728,"2026-05-21":4451,"2026-05-22":5550,"2026-05-23":6740,"2026-05-24":4450,"2026-05-25":4307,"2026-05-26":4188,"2026-05-27":4275,"2026-05-28":4693,"2026-05-29":5660,"2026-05-30":7547,"2026-05-31":5167,"2026-06-01":5119,"2026-06-02":5199,"2026-06-03":5451,"2026-06-04":5732,"2026-06-05":7179,"2026-06-06":8081,"2026-06-07":4766,"2026-06-08":4937,"2026-06-09":4790,"2026-06-10":5026,"2026-06-11":5123,"2026-06-12":5619,"2026-06-13":7007,"2026-06-14":4418,"2026-06-15":4790,"2026-06-16":4766,"2026-06-17":4936,"2026-06-18":4964,"2026-06-19":6036,"2026-06-20":6574,"2026-06-21":5168,"2026-06-22":4579,"2026-06-23":4377,"2026-06-24":4395,"2026-06-25":5097,"2026-06-26":3156,"2026-06-27":3524,"2026-06-28":2273,"2026-06-29":1703,"2026-06-30":2434,"2026-07-01":2638,"2026-07-02":2729,"2026-07-03":3120,"2026-07-04":4528,"2026-07-05":2649,"2026-07-06":2407,"2026-07-07":2710,"2026-07-08":2591,"2026-07-09":2566,"2026-07-10":3084,"2026-07-11":3187,"2026-07-12":1610,"2026-07-13":2242,"2026-07-14":2702,"2026-07-15":2314,"2026-07-16":2518,"2026-07-17":2551,"2026-07-18":3531,"2026-07-19":1646,"2026-07-20":2411,"2026-07-21":2321,"2026-07-22":2282,"2026-07-23":2584,"2026-07-24":2659,"2026-07-25":3634,"2026-07-26":1997,"2026-07-27":1977,"2026-07-28":3378,"2026-07-29":4336,"2026-07-30":4988,"2026-07-31":6061,"2026-08-01":8102,"2026-08-02":5036,"2026-08-03":4929,"2026-08-04":4716,"2026-08-05":4759,"2026-08-06":5359,"2026-08-07":6080,"2026-08-08":6505,"2026-08-09":2700,"2026-08-10":4767,"2026-08-11":4539,"2026-08-12":2934,"2026-08-13":4540,"2026-08-14":5156,"2026-08-15":5344,"2026-08-16":4495,"2026-08-17":4282,"2026-08-18":4395,"2026-08-19":4174,"2026-08-20":4961,"2026-08-21":5178,"2026-08-22":6790,"2026-08-23":4303,"2026-08-24":4145,"2026-08-25":4556,"2026-08-26":4379,"2026-08-27":4414,"2026-08-28":5549,"2026-08-29":7034,"2026-08-30":4397,"2026-08-31":5255,"2026-09-01":5346,"2026-09-02":5103,"2026-09-03":5367,"2026-09-04":5911,"2026-09-05":9122,"2026-09-06":5557,"2026-09-07":5425,"2026-09-08":4821,"2026-09-09":4703,"2026-09-10":4452,"2026-09-11":5149,"2026-09-12":6395,"2026-09-13":4624,"2026-09-14":4413,"2026-09-15":4779,"2026-09-16":5072,"2026-09-17":5077,"2026-09-18":5617,"2026-09-19":5967,"2026-09-20":3608,"2026-09-21":4658,"2026-09-22":4661,"2026-09-23":5116,"2026-09-24":4930,"2026-09-25":5389,"2026-09-26":6872,"2026-09-27":4455,"2026-09-28":4339,"2026-09-29":4514,"2026-09-30":5132},"Bela Aliança":{"2026-01-02":4396,"2026-01-03":4513,"2026-01-04":2925,"2026-01-05":3730,"2026-01-06":3627,"2026-01-07":4016,"2026-01-08":4010,"2026-01-09":4578,"2026-01-10":5454,"2026-01-11":3425,"2026-01-12":3435,"2026-01-13":3314,"2026-01-14":3114,"2026-01-15":3107,"2026-01-16":3662,"2026-01-17":4868,"2026-01-18":3135,"2026-01-19":2915,"2026-01-20":3680,"2026-01-21":3499,"2026-01-22":3358,"2026-01-23":3929,"2026-01-24":5130,"2026-01-25":3468,"2026-01-26":3490,"2026-01-27":3350,"2026-01-28":3234,"2026-01-29":3425,"2026-01-30":4207,"2026-01-31":5977,"2026-02-01":4170,"2026-02-02":3942,"2026-02-03":3379,"2026-02-04":3233,"2026-02-05":3624,"2026-02-06":4701,"2026-02-07":6460,"2026-02-08":4293,"2026-02-09":3262,"2026-02-10":3457,"2026-02-11":3255,"2026-02-12":3372,"2026-02-13":3752,"2026-02-14":5123,"2026-02-15":3337,"2026-02-16":3924,"2026-02-17":3526,"2026-02-18":3443,"2026-02-19":3240,"2026-02-20":4063,"2026-02-21":5055,"2026-02-22":3505,"2026-02-23":3093,"2026-02-24":3121,"2026-02-25":3195,"2026-02-26":3099,"2026-02-27":4344,"2026-02-28":5764,"2026-03-01":4359,"2026-03-02":3806,"2026-03-03":3644,"2026-03-04":3559,"2026-03-05":3635,"2026-03-06":4722,"2026-03-07":6013,"2026-03-08":4316,"2026-03-09":3571,"2026-03-10":3571,"2026-03-11":3258,"2026-03-12":3283,"2026-03-13":3863,"2026-03-14":5235,"2026-03-15":3612,"2026-03-16":3412,"2026-03-17":3377,"2026-03-18":3392,"2026-03-19":3414,"2026-03-20":4168,"2026-03-21":5691,"2026-03-22":3754,"2026-03-23":3452,"2026-03-24":3309,"2026-03-25":3437,"2026-03-26":3564,"2026-03-27":4081,"2026-03-28":5726,"2026-03-29":3731,"2026-03-30":3828,"2026-03-31":4354,"2026-04-01":5229,"2026-04-02":6282,"2026-04-03":5677,"2026-04-04":7677,"2026-04-05":4054,"2026-04-06":3540,"2026-04-07":3949,"2026-04-08":3889,"2026-04-09":3600,"2026-04-10":4232,"2026-04-11":5462,"2026-04-12":3661,"2026-04-13":3129,"2026-04-14":3077,"2026-04-15":3631,"2026-04-16":3525,"2026-04-17":3895,"2026-04-18":5190,"2026-04-19":3300,"2026-04-20":4280,"2026-04-21":3383,"2026-04-22":3362,"2026-04-23":3309,"2026-04-24":3833,"2026-04-25":5157,"2026-04-26":3585,"2026-04-27":3253,"2026-04-28":3093,"2026-04-29":3392,"2026-04-30":4767,"2026-05-02":6527,"2026-05-03":3959,"2026-05-04":3716,"2026-05-05":3862,"2026-05-06":3722,"2026-05-07":4185,"2026-05-08":4924,"2026-05-09":6998,"2026-05-10":4216,"2026-05-11":3508,"2026-05-12":3259,"2026-05-13":3301,"2026-05-14":3365,"2026-05-15":3967,"2026-05-16":5340,"2026-05-17":3691,"2026-05-18":3383,"2026-05-19":3273,"2026-05-20":3620,"2026-05-21":3510,"2026-05-22":3894,"2026-05-23":5304,"2026-05-24":3792,"2026-05-25":3526,"2026-05-26":3402,"2026-05-27":3260,"2026-05-28":3439,"2026-05-29":4294,"2026-05-30":5936,"2026-05-31":4073,"2026-06-01":4154,"2026-06-02":3673,"2026-06-03":4099,"2026-06-04":4598,"2026-06-05":5458,"2026-06-06":5961,"2026-06-07":4115,"2026-06-08":3863,"2026-06-09":3609,"2026-06-10":3593,"2026-06-11":3625,"2026-06-12":4355,"2026-06-13":5219,"2026-06-14":3790,"2026-06-15":3441,"2026-06-16":3558,"2026-06-17":3380,"2026-06-18":3517,"2026-06-19":4659,"2026-06-20":5426,"2026-06-21":3784,"2026-06-22":3553,"2026-06-23":3129,"2026-06-24":3204,"2026-06-25":3534,"2026-06-26":4020,"2026-06-27":5183,"2026-06-28":3791,"2026-06-29":3112,"2026-06-30":4143,"2026-07-01":4531,"2026-07-02":4127,"2026-07-03":4747,"2026-07-04":6632,"2026-07-05":4230,"2026-07-06":4218,"2026-07-07":4330,"2026-07-08":4037,"2026-07-09":4309,"2026-07-10":4704,"2026-07-11":5098,"2026-07-12":3510,"2026-07-13":3420,"2026-07-14":3340,"2026-07-15":3689,"2026-07-16":3745,"2026-07-17":3939,"2026-07-18":5268,"2026-07-19":3511,"2026-07-20":3872,"2026-07-21":3655,"2026-07-22":3746,"2026-07-23":3680,"2026-07-24":4126,"2026-07-25":5403,"2026-07-26":3433,"2026-07-27":3518,"2026-07-28":3490,"2026-07-29":3406,"2026-07-30":3789,"2026-07-31":4736,"2026-08-01":6525,"2026-08-02":4110,"2026-08-03":4042,"2026-08-04":3729,"2026-08-05":3830,"2026-08-06":4399,"2026-08-07":4640,"2026-08-08":6814,"2026-08-09":3827,"2026-08-10":3786,"2026-08-11":3626,"2026-08-12":3344,"2026-08-13":3770,"2026-08-14":4050,"2026-08-15":5670,"2026-08-16":3543,"2026-08-17":3478,"2026-08-18":3305,"2026-08-19":3316,"2026-08-20":3761,"2026-08-21":4133,"2026-08-22":5250,"2026-08-23":3459,"2026-08-24":3257,"2026-08-25":3394,"2026-08-26":3365,"2026-08-27":3421,"2026-08-28":4458,"2026-08-29":5983,"2026-08-30":4028,"2026-08-31":4155,"2026-09-01":3973,"2026-09-02":3984,"2026-09-03":3844,"2026-09-04":5118,"2026-09-05":7161,"2026-09-06":4696,"2026-09-07":4407,"2026-09-08":3802,"2026-09-09":3495,"2026-09-10":3672,"2026-09-11":4067,"2026-09-12":5325,"2026-09-13":3835,"2026-09-14":3112,"2026-09-15":3453,"2026-09-16":3475,"2026-09-17":3275,"2026-09-18":4193,"2026-09-19":5828,"2026-09-20":3848,"2026-09-21":3694,"2026-09-22":3324,"2026-09-23":3547,"2026-09-24":3536,"2026-09-25":4125,"2026-09-26":5159,"2026-09-27":3660,"2026-09-28":3688,"2026-09-29":3552,"2026-09-30":4372}},"hourly":{"2026-09-30":{"Campinas":[270,235,303,320,287,318,292,280,330,283,353,387,398,315,184],"SBO":[117,186,227,244,225,188,161,194,208,258,328,451,472,312,148],"SCA":[183,209,311,362,327,292,269,333,366,459,446,491,475,426,183],"Bela Aliança":[143,185,208,240,211,240,235,290,290,356,387,496,543,356,192]},"2026-09-29":{"Campinas":[220,200,205,262,255,302,229,238,293,255,338,345,310,253,153,1],"SBO":[139,156,207,204,222,133,172,200,204,220,264,373,324,208,121,1],"SCA":[172,219,247,297,285,257,226,397,407,402,359,418,399,285,144],"Bela Aliança":[142,128,200,230,216,184,202,219,252,285,295,402,380,282,135]},"2026-09-28":{"Campinas":[190,200,241,227,259,237,264,265,287,284,317,342,340,266,160],"SBO":[115,124,174,200,174,157,167,199,217,267,279,355,347,215,151,2],"SCA":[123,209,279,295,311,246,275,286,325,351,425,398,360,299,157],"Bela Aliança":[117,123,174,212,213,198,172,234,266,288,361,464,430,294,142]},"2026-09-27":{"Campinas":[221,254,311,355,323,257,245,226,287,274,230],"SBO":[130,191,317,329,368,265,235,272,249,314,263],"SCA":[135,274,385,545,553,520,408,418,413,382,421,1],"Bela Aliança":[168,242,374,395,459,401,318,344,272,324,363]},"2026-09-26":{"Campinas":[308,294,293,391,436,339,362,321,371,345,336,361,353,278,122],"SBO":[152,243,318,413,422,288,324,331,380,353,419,416,383,291,163],"SCA":[186,259,363,597,597,528,581,546,570,616,548,497,436,384,164],"Bela Aliança":[180,207,333,334,372,400,334,347,408,424,441,460,425,308,184,2]},"2026-09-25":{"Campinas":[274,228,295,313,354,336,272,290,366,350,331,397,303,344,187],"SBO":[154,189,260,257,240,258,247,277,341,351,387,458,371,317,180,1],"SCA":[173,247,367,379,345,302,366,361,402,482,449,480,415,362,258,1],"Bela Aliança":[131,212,176,178,216,235,255,268,264,342,381,496,436,331,204]},"2026-09-24":{"Campinas":[220,235,294,280,294,335,331,303,285,286,343,352,352,244,120],"SBO":[129,169,207,240,227,210,247,278,258,228,296,377,417,285,179,2],"SCA":[159,205,303,376,282,268,334,404,380,380,436,492,435,313,163],"Bela Aliança":[113,151,169,215,186,213,221,214,254,332,322,380,348,245,173]},"2026-09-23":{"Campinas":[213,192,256,282,267,374,272,306,286,284,359,298,338,235,117],"SBO":[133,172,209,193,186,237,269,310,290,274,371,400,355,213,156],"SCA":[171,222,336,334,368,295,382,387,434,434,404,404,374,366,205],"Bela Aliança":[104,128,188,248,188,210,231,274,266,270,369,412,336,211,112]},"2026-09-22":{"Campinas":[192,177,256,265,237,291,275,273,299,342,313,334,334,203,136],"SBO":[138,168,213,216,198,204,222,279,329,356,325,402,331,198,149],"SCA":[120,204,224,367,330,273,309,377,409,442,404,404,362,256,180],"Bela Aliança":[92,108,156,210,167,183,235,245,271,300,354,350,289,218,146]},"2026-09-21":{"Campinas":[200,208,265,227,222,272,263,276,290,270,327,361,281,283,137],"SBO":[113,122,170,219,210,160,191,237,252,264,331,469,349,207,169],"SCA":[84,240,258,318,301,224,326,373,378,391,430,468,361,281,225],"Bela Aliança":[119,158,170,207,216,218,230,255,251,292,344,444,403,245,142]},"2026-09-20":{"Campinas":[156,205,344,370,434,342,336,290,340,297,271],"SBO":[176,210,314,399,369,315,319,413,427,377,311],"SCA":[79,114,247,315,439,457,460,398,379,398,322],"Bela Aliança":[130,192,320,354,467,462,403,387,392,374,364,3]},"2026-09-19":{"Campinas":[441,377,413,402,332,360,311,336,383,355,336,331,266,225,140],"SBO":[216,267,399,467,464,419,386,410,456,400,483,462,409,251,169],"SCA":[147,240,387,491,568,494,494,417,488,504,519,466,323,283,145,1],"Bela Aliança":[204,260,320,463,459,467,454,384,447,474,495,457,482,264,198]},"2026-09-18":{"Campinas":[232,207,257,298,261,280,277,270,264,286,336,378,349,290,162],"SBO":[135,195,264,280,297,250,223,295,324,378,422,457,455,285,219],"SCA":[169,204,303,390,375,331,334,373,367,500,477,528,556,413,297],"Bela Aliança":[144,170,158,226,225,252,246,284,303,334,447,425,458,330,191]},"2026-09-17":{"Campinas":[214,221,251,284,229,337,265,293,297,266,268,354,326,220,115],"SBO":[140,130,215,213,232,195,224,276,282,274,307,389,317,238,170,1],"SCA":[167,216,303,342,350,266,331,319,416,424,423,524,499,319,178],"Bela Aliança":[121,141,147,175,180,216,183,217,231,263,298,398,360,230,115]}},"uptime":{"Campinas":[99.59,100,99.97,99.99,99.9,89.4,49.98,94.84,99.63],"SBO":[99.89,99.98,99.7,97.8,99.9,99.94,99.95,98.93,99.66],"SCA":[99.89,99.94,99.91,99.99,99.39,98.76,86.18,97.93,99.71],"Bela Aliança":[99.48,99.68,99.99,100,99.99,99.98,100,100,100]},"gerado":"01/10/2026","ini":"2026-01-01","fim":"2026-09-30","hIni":"17/09/2026","hFim":"30/09/2026"};
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=v=>Math.round(v).toLocaleString('pt-BR');
+const pct=v=>(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+const sgn=v=>(v>0?'+':'')+(v*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+const MES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DOW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];const DOWF=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const ST=DATA.stores;const COL=['var(--s0)','var(--s1)','var(--s2)','var(--s3)'];
+const MIN=100;
+// days
+const dates=[];{let d=new Date(DATA.ini+'T12:00');const e=new Date(DATA.fim+'T12:00');while(d<=e){dates.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5);}}
+const dow=s=>new Date(s+'T12:00').getDay();
+const V=(si,d)=>{const v=DATA.daily[ST[si].k][d];return v==null?null:v;};
+const ok=(si,d)=>{const v=V(si,d);return v!=null&&v>=MIN;};
+const months=[...new Set(dates.map(d=>d.slice(0,7)))];
+// anomalies (precomputed for all)
+const HOLN={'2026-01-01':'Confraternização','2026-04-03':'Sexta-feira Santa','2026-04-21':'Tiradentes','2026-05-01':'Dia do Trabalho','2026-06-04':'Corpus Christi','2026-07-09':'Revolução Constitucionalista (SP)','2026-09-07':'Independência'};
+const HOLL={'Campinas':{'2026-08-12':'feriado municipal de Campinas'},'Bela Aliança':{'2026-08-12':'feriado municipal de Campinas'},'SCA':{'2026-08-15':'aniversário de Sorocaba'}};
+const holOf=(si,d)=>(HOLL[ST[si].k]||{})[d]||HOLN[d]||null;
+const ANOM=[];
+function scan(excl){const out=[];ST.forEach((s,si)=>{dates.forEach(d=>{const v=V(si,d);if(v==null)return;const dt=new Date(d+'T12:00');const ref=[-28,-21,-14,-7,7,14,21,28].map(k=>new Date(dt.getTime()+k*864e5).toISOString().slice(0,10)).filter(x=>!excl.has(si+'|'+x)).map(x=>V(si,x)).filter(x=>x!=null&&x>=MIN).sort((a,b)=>a-b);
+  if(ref.length<3)return;const m=ref.length%2?ref[ref.length>>1]:(ref[ref.length/2-1]+ref[ref.length/2])/2;const r=v/m;
+  const hl=holOf(si,d);if(v<MIN)out.push({si,d,v,m,r,t:'fechada',hl});else if(hl&&(r<.7||r>1.4))out.push({si,d,v,m,r,t:'feriado',hl});else if(r<.7)out.push({si,d,v,m,r,t:'queda'});else if(r>1.4)out.push({si,d,v,m,r,t:'pico'});});});return out;}
+{const p1=scan(new Set());const ex=new Set(p1.filter(a=>a.t!=='pico'&&a.t!=='feriado').map(a=>a.si+'|'+a.d));ANOM.push(...scan(ex));}
+function groups(L){const G=[];L.slice().sort((a,b)=>a.si-b.si||(a.d<b.d?-1:1)).forEach(a=>{const g=G[G.length-1];if(g&&g.si===a.si&&g.t===a.t&&a.t==='queda'&&(new Date(a.d)-new Date(g.d1))/864e5<=6){g.d1=a.d;g.n++;g.v+=a.v;g.m+=a.m;}else G.push({...a,d0:a.d,d1:a.d,n:1});});return G.sort((a,b)=>a.d0<b.d0?-1:1);}
+const isAn=(si,d)=>ANOM.find(a=>a.si===si&&a.d===d);
+
+const S={st:new Set(),m0:0,m1:months.length-1,dw:new Set(),mMode:'avg',pMode:'u'};
+const stOk=i=>!S.st.size||S.st.has(i);const dwOk=d=>!S.dw.size||S.dw.has(dow(d));
+const inP=d=>{const m=months.indexOf(d.slice(0,7));return m>=S.m0&&m<=S.m1;};
+// filters UI
+function drawF(){
+  $('fLoj').innerHTML='<button type="button" class="chip" data-s="all" aria-pressed="'+(!S.st.size)+'">Todas</button>'+ST.map((s,i)=>'<button type="button" class="chip" data-s="'+i+'" aria-pressed="'+S.st.has(i)+'"><i style="background:'+COL[i]+'"></i>'+esc(s.nome)+' <span style="opacity:.7">· '+esc(s.fil)+'</span></button>').join('');
+  $('fDow').innerHTML='<button type="button" class="chip" data-d="all" aria-pressed="'+(!S.dw.size)+'">Todos</button>'+[1,2,3,4,5,6,0].map(i=>'<button type="button" class="chip" data-d="'+i+'" aria-pressed="'+S.dw.has(i)+'">'+DOW[i]+'</button>').join('');
+}
+const mo=months.map((m,i)=>'<option value="'+i+'">'+MES[+m.slice(5)-1]+'/'+m.slice(2,4)+'</option>').join('');
+$('fM0').innerHTML=mo;$('fM1').innerHTML=mo;$('fM0').value=S.m0;$('fM1').value=S.m1;
+$('fLoj').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.s==='all')S.st=new Set();else{const i=+b.dataset.s;S.st.has(i)?S.st.delete(i):S.st.add(i);if(S.st.size===ST.length)S.st=new Set();}drawF();render();});
+$('fDow').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.d==='all')S.dw=new Set();else{const i=+b.dataset.d;S.dw.has(i)?S.dw.delete(i):S.dw.add(i);if(S.dw.size===7)S.dw=new Set();}drawF();render();});
+const onM=src=>{let a=+$('fM0').value,b=+$('fM1').value;if(a>b){if(src===0)b=a;else a=b;}S.m0=a;S.m1=b;$('fM0').value=a;$('fM1').value=b;render();};
+$('fM0').addEventListener('change',()=>onM(0));$('fM1').addEventListener('change',()=>onM(1));
+$('clr').addEventListener('click',()=>{S.st=new Set();S.dw=new Set();S.m0=0;S.m1=months.length-1;$('fM0').value=0;$('fM1').value=S.m1;drawF();render();});
+const seg=(id,key)=>$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S[key]=b.dataset.m;[...$(id).children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render();});
+seg('mMode','mMode');seg('pMode','pMode');
+const tip=$('tip');const showTip=(e,h)=>{tip.innerHTML=h;tip.hidden=false;tip.style.left=Math.min(e.clientX+14,innerWidth-290)+'px';tip.style.top=Math.min(e.clientY+14,innerHeight-130)+'px';};
+document.addEventListener('pointermove',e=>{const t=e.target.closest('[data-tip]');if(!t){tip.hidden=true;return;}showTip(e,t.getAttribute('data-tip'));});
+
+const lbl=L=>{L.sort((a,b)=>a.y-b.y);for(let i=1;i<L.length;i++)if(L[i].y-L[i-1].y<14)L[i].y=L[i-1].y+14;return L.map(o=>'<text x="'+o.x+'" y="'+o.y+'" style="fill:'+o.c+';font-weight:600">'+esc(o.n)+'</text>').join('');};
+const W=el=>Math.max(300,Math.round(el.clientWidth||900));
+function render(){
+  const sel=ST.map((_,i)=>i).filter(stOk);
+  const days=dates.filter(d=>inP(d)&&dwOk(d));
+  $('sub').textContent='Contagem de visitantes do AlterVision · '+MES[+months[S.m0].slice(5)-1]+' a '+MES[+months[S.m1].slice(5)-1]+' de 2026 · dados até '+DATA.fim.split('-').reverse().join('/');
+  // KPI
+  let tot=0,nd=0;const per=sel.map(si=>{let t=0,n=0;days.forEach(d=>{if(ok(si,d)){t+=V(si,d);n++;}});tot+=t;nd+=n;return{si,t,n};});
+  const avgStore=nd?tot/nd:0;
+  // previous equivalent: same number of months before
+  const len=S.m1-S.m0+1;let prev=null;if(S.m0-len>=0){let t=0,n=0;sel.forEach(si=>dates.forEach(d=>{const m=months.indexOf(d.slice(0,7));if(m>=S.m0-len&&m<S.m0&&dwOk(d)&&ok(si,d)){t+=V(si,d);n++;}}));prev=n?t/n:null;}
+  // best weekday
+  const dws=[0,1,2,3,4,5,6].map(w=>{let t=0,n=0;sel.forEach(si=>days.forEach(d=>{if(dow(d)===w&&ok(si,d)){t+=V(si,d);n++;}}));return{w,a:n?t/n:0};}).filter(x=>x.a);
+  const bw=dws.slice().sort((a,b)=>b.a-a.a)[0],ww=dws.slice().sort((a,b)=>a.a-b.a)[0];
+  // best day overall (sum of stores)
+  let best=null;days.forEach(d=>{let t=0,c=0;sel.forEach(si=>{if(ok(si,d)){t+=V(si,d);c++;}});if(c===sel.length&&(!best||t>best.t))best={d,t};});
+  const dl=prev?avgStore/prev-1:null;
+  $('kpis').innerHTML=[
+    ['Visitantes',nf(tot),sel.length+(sel.length>1?' lojas':' loja')+' · '+days.length+' dias'],
+    ['Média por loja por dia',nf(avgStore),dl==null?'sem período anterior para comparar':'<span class="delta '+(dl>.01?'up':dl<-.01?'down':'flat')+'">'+sgn(dl)+'</span> vs. '+len+(len>1?' meses anteriores':' mês anterior')],
+    ['Dia da semana mais forte',bw?DOWF[bw.w]:'—',bw&&ww?nf(bw.a)+' por loja · '+sgn(bw.a/ww.a-1)+' vs. '+DOWF[ww.w]:''],
+    ['Maior dia',best?best.d.slice(8)+'/'+best.d.slice(5,7):'—',best?nf(best.t)+' visitantes · '+DOWF[dow(best.d)]:''],
+    ['Dias fora do padrão',ANOM.filter(a=>stOk(a.si)&&inP(a.d)&&dwOk(a.d)).length,'quedas, picos, feriados e loja fechada']
+  ].map(([l,v,f])=>'<div class="kpi"><div class="lab">'+l+'</div><div class="val">'+v+'</div><div class="foot">'+f+'</div></div>').join('');
+
+  // monthly chart
+  {const box=$('cMon');const w=W(box),narrow=w<640,h=narrow?260:320,l=narrow?44:58,r=narrow?10:90,t=16,b=34;
+   const ms=months.map((m,i)=>i).filter(i=>i>=S.m0&&i<=S.m1);
+   const val=(si,mi)=>{let s=0,n=0;dates.forEach(d=>{if(d.slice(0,7)===months[mi]&&dwOk(d)&&ok(si,d)){s+=V(si,d);n++;}});return S.mMode==='avg'?(n?s/n:null):s;};
+   const LB=[];const vals=sel.map(si=>ms.map(mi=>val(si,mi)));const all=vals.flat().filter(v=>v!=null);
+   const lo=S.mMode==='avg'?Math.floor(Math.min(...all)*.9/500)*500:0,hi=Math.max(...all)*1.05;
+   const X=j=>ms.length===1?(l+(w-l-r)/2):l+j*(w-l-r)/(ms.length-1),Y=v=>t+(1-(v-lo)/(hi-lo))*(h-t-b);
+   const step=[100,250,500,1000,2000,5000,10000,20000,50000].find(s=>(hi-lo)/s<=6)||100000;
+   let g='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Visitantes por mês">';
+   for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)g+='<line class="grid" x1="'+l+'" x2="'+(w-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(l-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+(v>=10000?(v/1000).toLocaleString('pt-BR')+' mil':nf(v))+'</text>';
+   ms.forEach((mi,j)=>g+='<text x="'+X(j)+'" y="'+(h-10)+'" text-anchor="middle">'+MES[+months[mi].slice(5)-1].slice(0,3).toLowerCase()+'</text>');
+   sel.forEach((si,k)=>{const p=vals[k].map((v,j)=>v==null?null:[X(j),Y(v)]);g+='<path d="'+p.filter(Boolean).map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')+'" fill="none" stroke="'+COL[si]+'" stroke-width="2.5"/>';
+     p.forEach((q,j)=>{if(!q)return;const lowUp=DATA.uptime[ST[si].k][ms[j]]<95;g+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(lowUp?5.5:4)+'" fill="'+(lowUp?'var(--panel)':COL[si])+'" stroke="'+COL[si]+'" stroke-width="2" data-tip="<b>'+esc(ST[si].nome)+'</b> · '+MES[+months[ms[j]].slice(5)-1]+'<br>'+(S.mMode==='avg'?nf(vals[k][j])+' por dia':nf(vals[k][j])+' no mês')+'<br>Câmeras ativas: '+DATA.uptime[ST[si].k][ms[j]].toLocaleString('pt-BR')+'%"/>';});
+     if(!narrow){const lst=p.filter(Boolean).pop();if(lst)LB.push({x:lst[0]+9,y:lst[1]+4,c:COL[si],n:ST[si].nome});}});
+   g+=lbl(LB);g+='</svg>';box.innerHTML=g;
+   $('lgMon').innerHTML=sel.map(si=>'<span><i style="background:'+COL[si]+'"></i>'+esc(ST[si].nome)+' · '+esc(ST[si].fil)+'</span>').join('')+'<span style="color:var(--ink-3)">ponto vazado = mês com câmeras abaixo de 95% de disponibilidade</span>';}
+
+  // daily chart (MA7 per store)
+  {const box=$('cDay');const w=W(box),narrow=w<640,h=narrow?240:300,l=narrow?44:52,r=10,t=14,b=30;
+   const dd=dates.filter(inP);const ma=(si,i)=>{const a=[];for(let k=i-6;k<=i;k++){const d=dd[k];if(d&&ok(si,d)&&dwOk(d))a.push(V(si,d));}return a.length?a.reduce((x,y)=>x+y,0)/a.length:null;};
+   const pts=[];sel.forEach(si=>dd.forEach((d,i)=>{if(dwOk(d)&&ok(si,d))pts.push(V(si,d));}));
+   const hi=Math.max(...pts,1)*1.05,lo=0;const X=i=>l+i/(Math.max(1,dd.length-1))*(w-l-r),Y=v=>t+(1-(v-lo)/(hi-lo))*(h-t-b);
+   const step=[500,1000,2000,5000].find(s=>hi/s<=6)||10000;
+   let g='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Visitantes por dia">';
+   for(let v=0;v<=hi;v+=step)g+='<line class="grid" x1="'+l+'" x2="'+(w-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(l-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+nf(v)+'</text>';
+   dd.forEach((d,i)=>{if(d.slice(8)==='01')g+='<line class="ax" x1="'+X(i)+'" x2="'+X(i)+'" y1="'+t+'" y2="'+(h-b)+'"/><text x="'+(X(i)+4)+'" y="'+(h-10)+'">'+MES[+d.slice(5,7)-1].slice(0,3).toLowerCase()+'</text>';});
+   sel.forEach(si=>{dd.forEach((d,i)=>{if(!dwOk(d)||!ok(si,d))return;const a=isAn(si,d);g+='<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(V(si,d)).toFixed(1)+'" r="'+(a?3.6:1.8)+'" fill="'+(a?'var(--bad)':COL[si])+'" fill-opacity="'+(a?1:.35)+'" data-tip="<b>'+esc(ST[si].nome)+'</b> · '+DOWF[dow(d)]+' '+d.slice(8)+'/'+d.slice(5,7)+'<br>'+nf(V(si,d))+' visitantes'+(a?'<br>'+(a.r>1?'+':'')+pct(a.r-1)+' vs. o normal deste dia':'')+'"/>';});
+     let path='',pen=false;dd.forEach((d,i)=>{const m=ma(si,i);if(m==null){pen=false;return;}path+=(pen?'L':'M')+X(i).toFixed(1)+' '+Y(m).toFixed(1)+' ';pen=true;});
+     g+='<path d="'+path+'" fill="none" stroke="'+COL[si]+'" stroke-width="2.2" pointer-events="none"/>';});
+   g+='</svg>';box.innerHTML=g;
+   $('lgDay').innerHTML=sel.map(si=>'<span><i style="background:'+COL[si]+'"></i>'+esc(ST[si].nome)+'</span>').join('')+'<span><i style="background:var(--bad);border-radius:50%"></i>Fora do padrão</span>';}
+
+  // weekday table
+  {const order=[1,2,3,4,5,6,0];const rows=sel.map(si=>{const a=order.map(w=>{let s=0,n=0;dates.forEach(d=>{if(inP(d)&&dow(d)===w&&ok(si,d)){s+=V(si,d);n++;}});return n?s/n:null;});const base=a.filter(x=>x).reduce((x,y)=>x+y,0)/a.filter(x=>x).length;return{si,a,base};});
+   const mx=Math.max(...rows.flatMap(r=>r.a.filter(Boolean)));
+   $('tDow').innerHTML='<thead><tr><th class="l">Loja</th>'+order.map(w=>'<th>'+DOW[w]+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr><td class="l"><i class="bar" style="width:8px;height:8px;border-radius:50%;background:'+COL[r.si]+'"></i>'+esc(ST[r.si].nome)+'</td>'+r.a.map((v,j)=>{if(v==null)return'<td>—</td>';const ix=v/r.base;return '<td data-tip="'+esc(ST[r.si].nome)+' · '+DOWF[order[j]]+': '+nf(v)+' por dia ('+sgn(ix-1)+' vs. média da loja)"><div>'+nf(v)+'</div><div style="font-size:12px;color:'+(ix>=1.1?'var(--good)':ix<=.9?'var(--bad)':'var(--ink-3)')+'">'+sgn(ix-1)+'</div></td>';}).join('')+'</tr>').join('')+'</tbody>';}
+
+  // share
+  {const rows=per.filter(p=>p.n);const T=rows.reduce((a,p)=>a+p.t,0);const mx=Math.max(...rows.map(p=>p.t/T));
+   $('tShare').innerHTML='<thead><tr><th class="l">Loja</th><th class="l">Filial</th><th>Visitantes</th><th>Média/dia</th><th class="l" style="min-width:190px">Participação</th></tr></thead><tbody>'+rows.sort((a,b)=>b.t-a.t).map(p=>'<tr><td class="l"><b>'+esc(ST[p.si].nome)+'</b></td><td class="l">'+esc(ST[p.si].fil)+'</td><td>'+nf(p.t)+'</td><td>'+nf(p.t/p.n)+'</td><td class="l"><span class="bar" style="width:'+(p.t/T/mx*120).toFixed(0)+'px;background:'+COL[p.si]+'"></span>'+pct(p.t/T)+'</td></tr>').join('')+'</tbody>';}
+
+  // heatmap hour × weekday (sample)
+  {const hrs=[];for(let x=7;x<=21;x++)hrs.push(x);const order=[1,2,3,4,5,6,0];
+   const cell={};order.forEach(w=>{hrs.forEach(hh=>{let s=0,n=0;Object.entries(DATA.hourly).forEach(([d,st])=>{if(dow(d)!==w)return;n++;sel.forEach(si=>{const a=st[ST[si].k];if(a)s+=(a[hh-7]||0);});});cell[w+'_'+hh]=n?s/n:null;});});
+   const vals=Object.values(cell).filter(v=>v&&v>=20);const mx=Math.max(...vals),mn=Math.min(...vals);
+   const lv=v=>Math.min(5,Math.floor((v-mn)/(mx-mn+1e-9)*6));
+   $('hmNote').textContent='média de '+DATA.hIni+' a '+DATA.hFim+' (2 semanas) · soma das lojas selecionadas · domingo fecha às 18h';
+   $('tHm').innerHTML='<thead><tr><th class="l">Dia</th>'+hrs.map(hh=>'<th style="text-align:center">'+hh+'h</th>').join('')+'</tr></thead><tbody>'+order.map(w=>{const row=hrs.map(hh=>cell[w+'_'+hh]);const pk=Math.max(...row.filter(Boolean));
+     return '<tr><td class="l"><b>'+DOWF[w]+'</b></td>'+row.map((v,j)=>{if(!v||v<20)return'<td class="hm" style="color:var(--ink-3)">—</td>';const L=lv(v);return '<td class="hm" style="background:var(--h'+L+');color:'+(L>=3?'var(--hink)':'var(--ink)')+(v===pk?';outline:2px solid var(--ink);outline-offset:-2px;font-weight:700':'')+'" data-tip="'+DOWF[w]+', '+hrs[j]+'h às '+(hrs[j]+1)+'h: '+nf(v)+' visitantes em média">'+nf(v)+'</td>';}).join('')+'</tr>';}).join('')+'</tbody>';}
+
+  // hourly profile per store
+  {const box=$('cHr');const w=W(box),narrow=w<640,h=narrow?240:280,l=narrow?40:50,r=narrow?10:90,t=12,b=30;const hrs=[];for(let x=7;x<=21;x++)hrs.push(x);
+   const want=d=>S.pMode==='u'?(dow(d)>=1&&dow(d)<=5):dow(d)===+S.pMode;
+   const prof=sel.map(si=>{return hrs.map(hh=>{let s=0,n=0;Object.entries(DATA.hourly).forEach(([d,st])=>{if(!want(d))return;const a=st[ST[si].k];if(!a)return;n++;s+=(a[hh-7]||0);});return n?s/n:null;});});
+   const LB=[];const all=prof.flat().filter(v=>v);const hi=Math.max(...all,1)*1.08;const X=j=>l+j/(hrs.length-1)*(w-l-r),Y=v=>t+(1-v/hi)*(h-t-b);
+   const step=[50,100,200].find(s=>hi/s<=6)||500;
+   let g='<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Visitantes por hora">';
+   for(let v=0;v<=hi;v+=step)g+='<line class="grid" x1="'+l+'" x2="'+(w-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text x="'+(l-6)+'" y="'+(Y(v)+4)+'" text-anchor="end">'+v+'</text>';
+   hrs.forEach((hh,j)=>{if(!narrow||j%2===0)g+='<text x="'+X(j)+'" y="'+(h-10)+'" text-anchor="middle">'+hh+'h</text>';});
+   prof.forEach((p,k)=>{const si=sel[k];const pts=p.map((v,j)=>v==null||v<5?null:[X(j),Y(v)]);g+='<path d="'+pts.filter(Boolean).map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' ')+'" fill="none" stroke="'+COL[si]+'" stroke-width="2.5"/>';
+     const pk=Math.max(...p.filter(Boolean));pts.forEach((q,j)=>{if(!q)return;g+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(p[j]===pk?5:3)+'" fill="'+COL[si]+'" data-tip="<b>'+esc(ST[si].nome)+'</b> · '+hrs[j]+'h às '+(hrs[j]+1)+'h<br>'+nf(p[j])+' visitantes em média'+(p[j]===pk?'<br>hora de pico':'')+'"/>';});
+     if(!narrow){const lst=pts.filter(Boolean).pop();if(lst)LB.push({x:lst[0]+8,y:lst[1]+4,c:COL[si],n:ST[si].nome});}});
+   g+=lbl(LB);g+='</svg>';box.innerHTML=g;
+   $('lgHr').innerHTML=sel.map((si,k)=>{const p=prof[k];const pk=Math.max(...p.filter(Boolean));return '<span><i style="background:'+COL[si]+'"></i>'+esc(ST[si].nome)+': pico às '+hrs[p.indexOf(pk)]+'h ('+nf(pk)+')</span>';}).join('')+'<span style="color:var(--ink-3)">média de '+DATA.hIni+' a '+DATA.hFim+'</span>';}
+
+  // anomalies table
+  {const L=ANOM.filter(a=>stOk(a.si)&&inP(a.d)&&dwOk(a.d)).sort((a,b)=>a.d<b.d?-1:1);
+   // group consecutive drops of same store into ranges
+   const G=groups(L);
+   const fd=d=>d.slice(8)+'/'+d.slice(5,7);
+   $('tAn').innerHTML='<thead><tr><th class="l">Quando</th><th class="l">Loja</th><th>Visitantes</th><th>Normal</th><th>Diferença</th><th class="l">Tipo</th></tr></thead><tbody>'+
+     (G.length?G.map(g=>'<tr><td class="l">'+(g.n>1?fd(g.d0)+' a '+fd(g.d1)+' <span class="note">('+g.n+' dias)</span>':DOW[dow(g.d0)].toLowerCase()+' '+fd(g.d0))+'</td><td class="l">'+esc(ST[g.si].nome)+'</td><td>'+nf(g.v/g.n)+(g.n>1?'/dia':'')+'</td><td>'+nf(g.m/g.n)+'</td><td>'+sgn(g.v/g.m-1)+'</td><td class="l"><span class="tag '+(g.t==='pico'?'up':g.t==='fechada'||g.t==='feriado'?'':'hi')+'">'+(g.t==='pico'?'pico':g.t==='fechada'?'loja fechada':g.t==='feriado'?'feriado':g.n>=5?'queda longa':'queda')+'</span>'+(g.hl?' <span class="note">'+esc(g.hl)+'</span>':'')+'</td></tr>').join(''):'<tr><td class="l" colspan="6">Nenhum dia fora do padrão para os filtros atuais.</td></tr>')+'</tbody>';}
+
+  // uptime
+  {const ms=months.map((m,i)=>i).filter(i=>i>=S.m0&&i<=S.m1);
+   $('tUp').innerHTML='<thead><tr><th class="l">Loja</th>'+ms.map(i=>'<th>'+MES[+months[i].slice(5)-1].slice(0,3).toLowerCase()+'</th>').join('')+'</tr></thead><tbody>'+sel.map(si=>'<tr><td class="l">'+esc(ST[si].nome)+'</td>'+ms.map(i=>{const u=DATA.uptime[ST[si].k][i];return '<td>'+(u<95?'<span class="tag '+(u<90?'hi':'md')+'">'+u.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%</span>':u.toLocaleString('pt-BR',{maximumFractionDigits:1})+'%')+'</td>';}).join('')+'</tr>').join('')+'</tbody>';}
+
+  // insights
+  {const I=[];
+   const prol=groups(ANOM.filter(a=>a.t==='queda'&&stOk(a.si)&&inP(a.d))).filter(g=>g.n>=5);
+   prol.forEach(p=>{const ums=months.map((m,i)=>i).filter(i=>months[i]>=p.d0.slice(0,7)&&months[i]<=p.d1.slice(0,7));const u=Math.min(...ums.map(i=>DATA.uptime[ST[p.si].k][i]));
+     I.push(['hi','<b>'+esc(ST[p.si].nome)+'</b> contou '+pct(1-p.v/p.m)+' menos que o normal em '+p.n+' dias entre '+p.d0.slice(8)+'/'+p.d0.slice(5,7)+' e '+p.d1.slice(8)+'/'+p.d1.slice(5,7)+'. No mês mais afetado, as câmeras ficaram '+u.toLocaleString('pt-BR')+'% do tempo ativas: provável falha de contagem, não perda real de clientes. Confirme com as vendas antes de usar esses dias.']);});
+   if(bw&&ww)I.push(['lo','<b>'+DOWF[bw.w][0].toUpperCase()+DOWF[bw.w].slice(1)+'</b> é o dia mais cheio ('+sgn(bw.a/ww.a-1)+' sobre '+DOWF[ww.w]+'). Escala de caixa e reposição deve acompanhar esse pico.']);
+   const peaks=ANOM.filter(a=>a.t==='pico'&&stOk(a.si)&&inP(a.d)).map(a=>a.d);const pk={};peaks.forEach(d=>pk[d]=(pk[d]||0)+1);const top=Object.entries(pk).filter(([,n])=>n>=2).map(([d])=>d).sort();
+   if(top.length)I.push(['md','Picos em mais de uma loja ao mesmo tempo: '+top.slice(0,6).map(d=>DOW[dow(d)].toLowerCase()+' '+d.slice(8)+'/'+d.slice(5,7)).join(', ')+(top.length>6?'…':'')+'. A semana de 31/03 a 04/04 (Páscoa) foi a maior do ano.']);
+   // growth
+   const g=sel.map(si=>{const av=mi=>{let s=0,n=0;dates.forEach(d=>{if(d.slice(0,7)===months[mi]&&ok(si,d)){s+=V(si,d);n++;}});return n?s/n:null;};return{si,a:av(S.m0),b:av(S.m1)};}).filter(x=>x.a&&x.b&&S.m1>S.m0);
+   if(g.length){const s=g.slice().sort((x,y)=>(y.b/y.a)-(x.b/x.a));I.push(['lo','Crescimento de '+MES[+months[S.m0].slice(5)-1].toLowerCase()+' para '+MES[+months[S.m1].slice(5)-1].toLowerCase()+' (média por dia): '+s.map(x=>esc(ST[x.si].nome)+' '+sgn(x.b/x.a-1)).join(' · ')+'.']);}
+   const lowUp=[];sel.forEach(si=>{for(let i=S.m0;i<=S.m1;i++){const u=DATA.uptime[ST[si].k][i];if(u<95)lowUp.push(ST[si].nome+' em '+MES[+months[i].slice(5)-1].toLowerCase()+' ('+u.toLocaleString('pt-BR')+'%)');}});
+   if(lowUp.length)I.push(['md','Câmeras abaixo de 95% de disponibilidade: '+lowUp.map(esc).join(', ')+'.']);
+   $('ins').innerHTML=I.map(([s,t])=>'<li><span class="tag '+(s==='hi'?'hi':s==='md'?'md':'')+'">'+({hi:'alto',md:'médio',lo:'info'})[s]+'</span><span>'+t+'</span></li>').join('');}
+  $('foot').textContent='Fonte: AlterVision (contagem de visitantes por câmera). Dados de 01/01 a 30/09/2026, extraídos em '+DATA.gerado+'. Correspondência de lojas: Campinas = Matriz, SBO = Loja 04, SCA = Loja 06, Bela Aliança = Loja 07. Hora a hora: amostra de duas semanas.';
+}
+drawF();render();
+let rw=0;new ResizeObserver(en=>{const w=Math.round(en[0].contentRect.width);if(Math.abs(w-rw)<8)return;rw=w;render();}).observe($('cMon'));
+})();
+</script>
+
+</body></html>

@@ -1,0 +1,760 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}</style></head><body>
+<title>Processos de RH · Higa</title>
+<style>
+  :root {
+    --paper: #EDEAE0;
+    --paper-raised: #F8F6EE;
+    --paper-raised-2: #F1EDDF;
+    --ink: #24272B;
+    --ink-soft: #5B5D53;
+    --ink-faint: #8B8C7F;
+    --rule: #C9C2AE;
+    --rule-soft: #DBD6C6;
+    --accent: #A73B2E;
+    --accent-soft: #A73B2E1A;
+    --teal: #2E6F63;
+    --teal-soft: #2E6F631A;
+    --amber: #A6741F;
+    --amber-soft: #A6741F1A;
+    --shadow: 0 1px 2px rgba(36,39,43,0.06), 0 6px 20px rgba(36,39,43,0.05);
+
+    --font-display: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+    --font-body: "Public Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1B1C17;
+      --paper-raised: #232419;
+      --paper-raised-2: #292A1D;
+      --ink: #ECE7D8;
+      --ink-soft: #B7B4A2;
+      --ink-faint: #82806F;
+      --rule: #3B3C30;
+      --rule-soft: #303125;
+      --accent: #DE6E5E;
+      --accent-soft: #DE6E5E26;
+      --teal: #63B3A2;
+      --teal-soft: #63B3A226;
+      --amber: #D9A64C;
+      --amber-soft: #D9A64C26;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 26px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #1B1C17;
+    --paper-raised: #232419;
+    --paper-raised-2: #292A1D;
+    --ink: #ECE7D8;
+    --ink-soft: #B7B4A2;
+    --ink-faint: #82806F;
+    --rule: #3B3C30;
+    --rule-soft: #303125;
+    --accent: #DE6E5E;
+    --accent-soft: #DE6E5E26;
+    --teal: #63B3A2;
+    --teal-soft: #63B3A226;
+    --amber: #D9A64C;
+    --amber-soft: #D9A64C26;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 26px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal { animation: rise 0.5s ease both; }
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 28px 120px; }
+
+  /* ---------- Masthead ---------- */
+  header.masthead {
+    padding: 56px 0 40px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .kicker::before {
+    content: "";
+    width: 22px; height: 1px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .dek {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+    max-width: 60ch;
+    margin: 0 0 26px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+  .meta-row dl { display: flex; gap: 6px; margin: 0; }
+  .meta-row dt { color: var(--ink-faint); }
+  .meta-row dd { margin: 0; color: var(--ink-soft); }
+  .status-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--teal);
+    background: var(--teal-soft);
+    border: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    border-radius: 3px;
+    padding: 3px 8px;
+  }
+
+  /* ---------- How to use ---------- */
+  .howto {
+    margin: 32px 0 8px;
+    padding: 18px 20px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .howto strong { color: var(--ink); }
+
+  /* ---------- Index nav ---------- */
+  nav.index {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--rule);
+    margin: 44px -28px 0;
+    padding: 0 28px;
+  }
+  nav.index .wrap-inner {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 12px 0;
+  }
+  nav.index a {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+  }
+  nav.index a:hover { color: var(--ink); border-color: var(--rule); background: var(--paper-raised); }
+
+  /* ---------- Sections ---------- */
+  section.process {
+    padding-top: 76px;
+    scroll-margin-top: 64px;
+  }
+  section.process + section.process { border-top: 1px solid var(--rule); }
+  .proc-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3.4vw, 1.9rem);
+    line-height: 1.16;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .proc-scope {
+    font-size: 0.94rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin: 0 0 22px;
+  }
+  h3.sub {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 34px 0 12px;
+  }
+  p { margin: 0 0 14px; max-width: 66ch; }
+  ol.steps, ul.improve {
+    margin: 0 0 8px;
+    padding-left: 0;
+    list-style: none;
+    max-width: 66ch;
+  }
+  ol.steps li, ul.improve li {
+    position: relative;
+    padding: 10px 0 10px 30px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 0.97rem;
+    color: var(--ink-soft);
+  }
+  ol.steps li:first-child, ul.improve li:first-child { border-top: none; }
+  ul.improve li::before {
+    content: "";
+    position: absolute;
+    left: 4px; top: 18px;
+    width: 6px; height: 6px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  ol.steps { counter-reset: step; }
+  ol.steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .steps b, .improve b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- Diagram ---------- */
+  figure.diagram {
+    margin: 26px 0 8px;
+    padding: 22px 20px 16px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-soft);
+    border-radius: 6px;
+    box-shadow: var(--shadow);
+  }
+  figure.diagram .scroller { overflow-x: auto; }
+  figure.diagram svg { display: block; max-width: 100%; height: auto; min-width: 560px; }
+  figure.diagram svg text { font-family: var(--font-body); fill: var(--ink); }
+  figure.diagram svg text.mono { font-family: var(--font-mono); }
+  figcaption {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 0.86rem;
+    color: var(--ink-faint);
+  }
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* ---------- Callout (message template) ---------- */
+  .callout {
+    margin: 22px 0 8px;
+    padding: 16px 20px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule-soft);
+    border-left: 3px solid var(--amber);
+    border-radius: 4px;
+    max-width: 66ch;
+  }
+  .callout-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .callout p { margin: 0 0 8px; font-size: 0.95rem; color: var(--ink); font-style: italic; }
+  .callout p.callout-hint { font-size: 0.82rem; font-style: normal; color: var(--ink-faint); margin: 0; }
+
+  /* ---------- Correction log ---------- */
+  .log-card {
+    margin: 26px 0 4px;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .log-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    background: var(--amber-soft);
+    border-bottom: 1px solid var(--rule);
+  }
+  .log-head h4 {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+  .log-head span {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+  .log-table-scroller { overflow-x: auto; }
+  table.log {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+    font-size: 0.88rem;
+  }
+  table.log th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-weight: 400;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  table.log td {
+    padding: 14px;
+    border-bottom: 1px dashed var(--rule-soft);
+    color: var(--ink-faint);
+    vertical-align: top;
+  }
+  table.log tr:last-child td { border-bottom: none; }
+  table.log td.hint { font-style: italic; }
+
+  /* ---------- Footer ---------- */
+  footer {
+    margin-top: 90px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 0 18px 100px; }
+    nav.index { margin: 32px -18px 0; padding: 0 18px; }
+    header.masthead { padding: 40px 0 30px; }
+    section.process { padding-top: 56px; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead reveal">
+    <div class="kicker">Protocolo interno · Recursos Humanos</div>
+    <h1>Processos de RH da Higa</h1>
+    <p class="dek">Fluxos de contratação de PCD, condutas do dia a dia e admissão — organizados para acompanhar a operação real e registrar ajustes conforme forem identificados.</p>
+    <div class="meta-row">
+      <dl><dt>Doc.</dt><dd>POL&#8209;RH&#8209;03</dd></dl>
+      <dl><dt>Versão</dt><dd>1.0</dd></dl>
+      <dl><dt>Publicado em</dt><dd>27/08/2026</dd></dl>
+      <span class="status-chip">Em operação · sujeito a ajustes</span>
+    </div>
+  </header>
+
+  <div class="howto reveal">
+    <strong>Como usar este documento —</strong> cada processo abaixo mostra as etapas, quem participa em cada ponto e onde o fluxo se ramifica conforme o caso. Ao final de cada processo há uma <strong>ficha de ajustes</strong>: use-a para registrar o que foi observado na operação real e a correção aplicada, para que o fluxo evolua com o tempo em vez de ficar só no papel.
+  </div>
+
+  <nav class="index" aria-label="Índice de processos">
+    <div class="wrap-inner">
+      <a href="#pcd">01 · Contratação de PCD</a>
+      <a href="#condutas">02 · Condutas do dia a dia</a>
+      <a href="#admissao">03 · Admissão e exame médico</a>
+    </div>
+  </nav>
+
+  <!-- ================= PROCESSO 01 ================= -->
+  <section class="process" id="pcd">
+    <div class="proc-eyebrow">Processo 01</div>
+    <h2>Contratação de Pessoa com Deficiência</h2>
+    <p class="proc-scope">Tipo de deficiência · cuidados e informações no prontuário</p>
+
+    <p>O objetivo é que a entrevista deixe o responsável pelo candidato à vontade para sinalizar dificuldades reais — e que a Higa saia dela sabendo exatamente quem acionar e o que fazer, sem expor a empresa a risco jurídico.</p>
+
+    <h3 class="sub">Processo de melhoria</h3>
+    <ul class="improve">
+      <li><b>Acolhimento na entrevista:</b> demonstrar acolhimento ao responsável pelo candidato PCD, para que se sinta confortável em sinalizar as dificuldades que ele possui.</li>
+      <li><b>Questionário não sensível:</b> levantar possíveis perguntas junto ao Jurídico, formuladas para não gerar discriminação nem risco de ação contra a Higa.</li>
+      <li><b>Rotina de entrevista:</b> inserir o questionário nas entrevistas para mapear pontos de cuidado devido à deficiência do candidato, e registrar quem acionar e quais medidas tomar caso algo aconteça dentro da empresa.</li>
+    </ul>
+
+    <figure class="diagram reveal">
+      <div class="scroller">
+        <svg viewBox="0 0 900 240" role="img" aria-label="Fluxo: entrevista com acolhimento, questionário não sensível validado pelo Jurídico, mapeamento de cuidados e registro no prontuário.">
+          <defs>
+            <marker id="arrow1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow1)">
+            <line x1="200" y1="55" x2="238" y2="55" stroke-width="1.5"/>
+            <line x1="420" y1="55" x2="458" y2="55" stroke-width="1.5"/>
+            <line x1="640" y1="55" x2="678" y2="55" stroke-width="1.5"/>
+          </g>
+          <g stroke="var(--accent)" stroke-opacity="0.5" stroke-dasharray="3 4" marker-end="url(#arrow1)">
+            <line x1="330" y1="90" x2="330" y2="158" stroke-width="1.5" fill="none"/>
+          </g>
+          <text x="345" y="128" class="mono" font-size="10" fill="var(--accent)">orienta o roteiro</text>
+
+          <!-- boxes -->
+          <g font-size="12.5">
+            <rect x="20" y="20" width="180" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="110" y="50" text-anchor="middle">Entrevista</text>
+            <text x="110" y="67" text-anchor="middle">com acolhimento</text>
+
+            <rect x="240" y="20" width="180" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="330" y="50" text-anchor="middle">Questionário</text>
+            <text x="330" y="67" text-anchor="middle">não sensível</text>
+
+            <rect x="460" y="20" width="180" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="550" y="50" text-anchor="middle">Mapeamento de</text>
+            <text x="550" y="67" text-anchor="middle">cuidados e contatos</text>
+
+            <rect x="680" y="20" width="180" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="770" y="50" text-anchor="middle">Registro no</text>
+            <text x="770" y="67" text-anchor="middle">prontuário</text>
+          </g>
+
+          <rect x="250" y="158" width="160" height="52" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity="0.6"/>
+          <text x="330" y="180" text-anchor="middle" font-size="12">Jurídico</text>
+          <text x="330" y="197" text-anchor="middle" font-size="11" fill="var(--ink-soft)">valida as perguntas</text>
+        </svg>
+      </div>
+      <figcaption>O Jurídico entra apenas para validar o roteiro do questionário — a entrevista, o mapeamento e o registro seguem com RH e loja.</figcaption>
+    </figure>
+
+    <div class="log-card reveal">
+      <div class="log-head">
+        <h4>Ficha de ajustes pós-implantação</h4>
+        <span>Preencher conforme situações reais forem identificadas</span>
+      </div>
+      <div class="log-table-scroller">
+        <table class="log">
+          <thead>
+            <tr><th>Data</th><th>Etapa</th><th>Situação identificada</th><th>Ação corretiva</th><th>Responsável</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="hint">—</td><td class="hint">—</td><td class="hint">a preencher</td><td class="hint">—</td><td class="hint">—</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESSO 02 ================= -->
+  <section class="process" id="condutas">
+    <div class="proc-eyebrow">Processo 02</div>
+    <h2>Condutas do dia a dia</h2>
+    <p class="proc-scope">Colaboradores em casos sensíveis · Aprendiz · PCD</p>
+
+    <p>Todo caso sensível começa igual: a loja identifica a situação, comunica o RH e o RH busca orientação do Jurídico. É a partir daí que o fluxo se ramifica — o perfil do colaborador muda quem mais precisa ser chamado antes de qualquer orientação ou punição.</p>
+
+    <figure class="diagram reveal">
+      <div class="scroller">
+        <svg viewBox="0 0 1200 420" role="img" aria-label="Fluxo com um tronco comum (loja identifica, comunica o RH, RH busca orientação jurídica) que se ramifica em três condutas: geral, PCD e aprendiz, cada uma com um passo diferente destacado.">
+          <defs>
+            <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <!-- backbone -->
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow2)">
+            <line x1="220" y1="52" x2="258" y2="52" stroke-width="1.5"/>
+            <line x1="440" y1="52" x2="478" y2="52" stroke-width="1.5"/>
+          </g>
+          <g font-size="12.5">
+            <rect x="20" y="20" width="200" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="120" y="48" text-anchor="middle">Loja identifica</text>
+            <text x="120" y="65" text-anchor="middle">situação sensível</text>
+
+            <rect x="260" y="20" width="180" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="350" y="48" text-anchor="middle">Loja comunica</text>
+            <text x="350" y="65" text-anchor="middle">o RH</text>
+
+            <rect x="480" y="20" width="220" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="590" y="48" text-anchor="middle">RH busca orientação</text>
+            <text x="590" y="65" text-anchor="middle">do Jurídico</text>
+          </g>
+
+          <!-- trunk -->
+          <line x1="590" y1="84" x2="590" y2="356" stroke="currentColor" stroke-opacity="0.35" stroke-width="1.5" fill="none"/>
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow2)">
+            <line x1="590" y1="136" x2="618" y2="136" stroke-width="1.5"/>
+            <line x1="590" y1="246" x2="618" y2="246" stroke-width="1.5"/>
+            <line x1="590" y1="356" x2="618" y2="356" stroke-width="1.5"/>
+          </g>
+
+          <!-- row labels -->
+          <g class="mono" font-size="10.5" fill="var(--ink-faint)">
+            <rect x="30" y="116" width="118" height="40" rx="4" fill="var(--paper-raised-2)" stroke="var(--rule-soft)"/>
+            <text x="89" y="140" text-anchor="middle">GERAL</text>
+            <rect x="30" y="226" width="118" height="40" rx="4" fill="var(--accent-soft)" stroke="var(--rule-soft)"/>
+            <text x="89" y="250" text-anchor="middle" fill="var(--accent)">PCD</text>
+            <rect x="30" y="336" width="118" height="40" rx="4" fill="var(--accent-soft)" stroke="var(--rule-soft)"/>
+            <text x="89" y="360" text-anchor="middle" fill="var(--accent)">APRENDIZ</text>
+          </g>
+
+          <!-- Geral row -->
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow2)">
+            <line x1="880" y1="136" x2="918" y2="136" stroke-width="1.5"/>
+          </g>
+          <g font-size="12">
+            <rect x="620" y="104" width="260" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="750" y="130" text-anchor="middle">RH + Líder/Gerente</text>
+            <text x="750" y="147" text-anchor="middle">acompanham orientação/punição</text>
+
+            <rect x="920" y="104" width="240" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="1040" y="130" text-anchor="middle">RH registra e comunica</text>
+            <text x="1040" y="147" text-anchor="middle">ao Jurídico (fechamento)</text>
+          </g>
+
+          <!-- PCD row -->
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow2)">
+            <line x1="880" y1="246" x2="918" y2="246" stroke-width="1.5"/>
+          </g>
+          <g font-size="12">
+            <rect x="620" y="214" width="260" height="64" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity="0.6"/>
+            <text x="750" y="240" text-anchor="middle">RH + Líder convocam</text>
+            <text x="750" y="257" text-anchor="middle">pais ou responsável legal</text>
+
+            <rect x="920" y="214" width="240" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="1040" y="240" text-anchor="middle">Acompanham e RH registra</text>
+            <text x="1040" y="257" text-anchor="middle">junto ao Jurídico</text>
+          </g>
+
+          <!-- Aprendiz row -->
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow2)">
+            <line x1="880" y1="356" x2="918" y2="356" stroke-width="1.5"/>
+          </g>
+          <g font-size="12">
+            <rect x="620" y="324" width="260" height="64" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity="0.6"/>
+            <text x="750" y="350" text-anchor="middle">RH convoca responsável</text>
+            <text x="750" y="367" text-anchor="middle">legal e aciona o SENAC</text>
+
+            <rect x="920" y="324" width="240" height="64" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="1040" y="350" text-anchor="middle">Acompanha plano; comunica</text>
+            <text x="1040" y="367" text-anchor="middle">Jurídico e SENAC</text>
+          </g>
+        </svg>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--rule-soft); border:1px solid var(--ink-faint);"></i>comum às três condutas</span>
+        <span><i style="background:var(--accent); border:1px solid var(--accent);"></i>onde a conduta se diferencia</span>
+      </div>
+      <figcaption>As três condutas partilham o mesmo início. A diferença está em quem mais é chamado antes da orientação ou punição: responsável legal para PCD, responsável legal + SENAC para aprendiz.</figcaption>
+    </figure>
+
+    <div class="log-card reveal">
+      <div class="log-head">
+        <h4>Ficha de ajustes pós-implantação</h4>
+        <span>Preencher conforme situações reais forem identificadas</span>
+      </div>
+      <div class="log-table-scroller">
+        <table class="log">
+          <thead>
+            <tr><th>Data</th><th>Conduta</th><th>Situação identificada</th><th>Ação corretiva</th><th>Responsável</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="hint">—</td><td class="hint">Geral / PCD / Aprendiz</td><td class="hint">a preencher</td><td class="hint">—</td><td class="hint">—</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESSO 03 ================= -->
+  <section class="process" id="admissao">
+    <div class="proc-eyebrow">Processo 03</div>
+    <h2>Admissão de pessoas e exame médico</h2>
+    <p class="proc-scope">Do anúncio da vaga ao primeiro dia</p>
+
+    <p>Fluxo linear — cada etapa só começa quando a anterior é concluída, o que facilita apontar exatamente onde um atraso ou retrabalho está acontecendo.</p>
+
+    <figure class="diagram reveal">
+      <div class="scroller">
+        <svg viewBox="0 0 1200 140" role="img" aria-label="Fluxo linear de admissão: divulgação da vaga, entrevistas pelo RH, comunicação da seleção, agendamento do exame médico, solicitação de documentos e abertura de conta, e agendamento de início.">
+          <defs>
+            <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow3)">
+            <line x1="190" y1="55" x2="216" y2="55" stroke-width="1.5"/>
+            <line x1="384" y1="55" x2="410" y2="55" stroke-width="1.5"/>
+            <line x1="578" y1="55" x2="604" y2="55" stroke-width="1.5"/>
+            <line x1="772" y1="55" x2="798" y2="55" stroke-width="1.5"/>
+            <line x1="966" y1="55" x2="992" y2="55" stroke-width="1.5"/>
+          </g>
+          <g font-size="12">
+            <rect x="20" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="105" y="52" text-anchor="middle">Divulgação</text>
+            <text x="105" y="69" text-anchor="middle">da vaga</text>
+
+            <rect x="214" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="299" y="52" text-anchor="middle">Entrevistas</text>
+            <text x="299" y="69" text-anchor="middle">(RH)</text>
+
+            <rect x="408" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="493" y="52" text-anchor="middle">Comunicação</text>
+            <text x="493" y="69" text-anchor="middle">da seleção</text>
+
+            <rect x="602" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="687" y="52" text-anchor="middle">Agendamento do</text>
+            <text x="687" y="69" text-anchor="middle">exame médico</text>
+
+            <rect x="796" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="881" y="52" text-anchor="middle">Documentos e</text>
+            <text x="881" y="69" text-anchor="middle">abertura de conta</text>
+
+            <rect x="990" y="20" width="170" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+            <text x="1075" y="52" text-anchor="middle">Agendamento</text>
+            <text x="1075" y="69" text-anchor="middle">de início</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>O exame médico só é agendado após o resultado da seleção; documentos e abertura de conta seguem em paralelo até o agendamento do início.</figcaption>
+    </figure>
+
+    <h3 class="sub">ASO · quando o exame aponta impedimento</h3>
+    <p>Quando a clínica de saúde ocupacional mapeia, no exame admissional, um problema de saúde incompatível com a função para a qual o colaborador foi selecionado, o RH não segue com a contratação. A partir daí o RH verifica com o Jurídico a melhor forma de comunicar ao candidato que ele não estava apto para atuar na função.</p>
+
+    <figure class="diagram reveal">
+      <div class="scroller">
+        <svg viewBox="0 0 1020 270" role="img" aria-label="Fluxo do ASO: o exame médico admissional se divide entre apto, que segue para documentos e abertura de conta, e inapto para a função, que interrompe a contratação, passa por alinhamento com o Jurídico e termina na comunicação ao candidato com a nova data do exame.">
+          <defs>
+            <marker id="arrow4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+
+          <rect x="20" y="90" width="200" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+          <text x="120" y="120" text-anchor="middle" font-size="12.5">Exame médico</text>
+          <text x="120" y="137" text-anchor="middle" font-size="12.5">admissional (ASO)</text>
+
+          <line x1="220" y1="105" x2="278" y2="58" stroke="var(--teal)" stroke-opacity="0.75" stroke-width="1.5" marker-end="url(#arrow4)" fill="none"/>
+          <text x="230" y="72" font-size="11" fill="var(--teal)" class="mono">apto</text>
+          <rect x="280" y="20" width="260" height="70" rx="6" fill="var(--teal-soft)" stroke="var(--teal)" stroke-opacity="0.5"/>
+          <text x="410" y="50" text-anchor="middle" font-size="12">Segue para documentos e</text>
+          <text x="410" y="67" text-anchor="middle" font-size="12">abertura de conta</text>
+
+          <line x1="220" y1="145" x2="278" y2="192" stroke="var(--accent)" stroke-opacity="0.75" stroke-width="1.5" marker-end="url(#arrow4)" fill="none"/>
+          <text x="222" y="216" font-size="11" fill="var(--accent)" class="mono">inapto para a função</text>
+
+          <g fill="none" stroke="currentColor" stroke-opacity="0.55" marker-end="url(#arrow4)">
+            <line x1="500" y1="195" x2="538" y2="195" stroke-width="1.5"/>
+            <line x1="760" y1="195" x2="798" y2="195" stroke-width="1.5"/>
+          </g>
+
+          <rect x="280" y="160" width="220" height="70" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-opacity="0.6"/>
+          <text x="390" y="190" text-anchor="middle" font-size="12">RH não segue</text>
+          <text x="390" y="207" text-anchor="middle" font-size="12">com a contratação</text>
+
+          <rect x="540" y="160" width="220" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+          <text x="650" y="190" text-anchor="middle" font-size="12">RH alinha com o Jurídico</text>
+          <text x="650" y="207" text-anchor="middle" font-size="12">a melhor comunicação</text>
+
+          <rect x="800" y="160" width="200" height="70" rx="6" fill="var(--paper-raised-2)" stroke="var(--rule)"/>
+          <text x="900" y="188" text-anchor="middle" font-size="12">Comunica o candidato:</text>
+          <text x="900" y="205" text-anchor="middle" font-size="11.5">exame disponível em [data]</text>
+        </svg>
+      </div>
+      <figcaption>Apto: segue para a etapa de documentos, no fluxo acima. Inapto para a função: a contratação não avança, o Jurídico orienta a comunicação e o candidato é informado da nova data do exame.</figcaption>
+    </figure>
+
+    <div class="callout reveal">
+      <div class="callout-label">Mensagem sugerida ao candidato</div>
+      <p>"O colaborador não estava apto para atuar na função. O exame médico estará disponível a partir de [data a definir]."</p>
+      <p class="callout-hint">Confirmar sempre a redação final com o Jurídico antes do envio — o teor pode variar caso a caso.</p>
+    </div>
+
+    <div class="log-card reveal">
+      <div class="log-head">
+        <h4>Ficha de ajustes pós-implantação</h4>
+        <span>Preencher conforme situações reais forem identificadas</span>
+      </div>
+      <div class="log-table-scroller">
+        <table class="log">
+          <thead>
+            <tr><th>Data</th><th>Etapa</th><th>Situação identificada</th><th>Ação corretiva</th><th>Responsável</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="hint">—</td><td class="hint">—</td><td class="hint">a preencher</td><td class="hint">—</td><td class="hint">—</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+            <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Higa · Recursos Humanos</span>
+    <span>Documento vivo — atualizar as fichas de ajuste conforme a operação evoluir</span>
+  </footer>
+
+</div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+</body></html>
