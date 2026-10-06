@@ -1,7 +1,12 @@
 {
-  // Publica SOMENTE a pasta publico/ (painéis protegidos por senha).
-  // Os demais artefatos em artefatos/ NÃO vão para o site.
+  // Publica SOMENTE a pasta publico/, atrás de uma tela de senha (src/index.js).
+  // A senha fica no segredo SENHA da Cloudflare, nunca no repositório.
   "name": "processos-higa",
+  "main": "src/index.js",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./publico" }
+  "assets": {
+    "directory": "./publico",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  }
 }
