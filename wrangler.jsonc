@@ -1,0 +1,7 @@
+{
+  // Publica SOMENTE a pasta publico/ (painéis protegidos por senha).
+  // Os demais artefatos em artefatos/ NÃO vão para o site.
+  "name": "processos-higa",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./publico" }
+}
